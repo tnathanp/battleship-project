@@ -17,7 +17,7 @@ class Lobby extends React.Component {
     }
     getList() {
         //get list from server
-        let list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        let list = [1, 2, 3, 4, 5]
         this.setState({
             roomList: list
         })
@@ -41,7 +41,7 @@ class Lobby extends React.Component {
     refresh() {
         //get new list from server
         let list = []
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < 5; i++) {
             list.push(Math.floor(Math.random() * 101))
         }
         this.setState({
@@ -63,9 +63,9 @@ class Lobby extends React.Component {
                 <Container>
                     <Row>
                         <Col>
-                            <Card style={{ width: '100%', height: '720px' }}>
+                            <Card style={{ width: '100%', height: '100%' }}>
                                 <Card.Header>
-                                    Please Select Room
+                                    Room List
                                 <Button className="float-right" variant="primary" size="sm" onClick={() => this.refresh()}><BsArrowClockwise style={{ marginRight: '3px' }} /> refresh</Button>
                                 </Card.Header>
                                 <Card.Body>

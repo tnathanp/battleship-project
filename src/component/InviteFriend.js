@@ -30,7 +30,7 @@ class InviteFriend extends React.Component {
                         <Form.Label>Friend ID</Form.Label>
                         <Form.Control onChange={(id) => this.enterID(id)} placeholder="Enter your friend's ID" />
                       </Form.Group>
-                      <Button variant="primary" type="submit">
+                      <Button variant="primary" onClick="">
                         Enter
                       </Button>
                     </Form>

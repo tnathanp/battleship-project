@@ -8,23 +8,31 @@ import { RiShoppingCart2Fill, RiShipLine } from "react-icons/ri";
 import { AiTwotoneHome } from "react-icons/ai";
 
 class Menu extends React.Component {
+    hello() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Hello',
+            text: 'Test',
+          })
+    }
+
     render() {
         return (
-            <Navbar bg="dark" variant="dark" size="lg" expand="lg">
-                <Navbar.Brand href="#home"><RiShipLine />Eiei Battleship<RiShipLine /></Navbar.Brand>
-                <Navbar.Collapse id="basic-navbar-nav">
+            <Navbar bg="dark" variant="dark" style={{borderRadius: '10px 10px 0 0'}}>
+                <Navbar.Brand><RiShipLine />Eiei Battleship<RiShipLine /></Navbar.Brand>
+                <Navbar.Collapse>
                     <Nav>
-                        <Nav.Link href="#home">
+                        <Nav.Link href="/">
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <AiTwotoneHome style={{ marginRight: '5px' }} /> Lobby
                             </div>
                         </Nav.Link>
-                        <Nav.Link href="#link1">
+                        <Nav.Link href="/shop">
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <RiShoppingCart2Fill style={{ marginRight: '5px' }} />  Shop
                             </div>
                         </Nav.Link>
-                        <Nav.Link href="#link2">
+                        <Nav.Link href="/rank">
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <BsTrophy style={{ marginRight: '5px' }} />Rank
                             </div>
@@ -32,9 +40,9 @@ class Menu extends React.Component {
                     </Nav>
                     <Nav className="ml-auto">
                         <NavDropdown title={<BsJustify size={30} />} drop='left'>
-                            <NavDropdown.Item href="#action/3.1">Profile</NavDropdown.Item>
-                            <NavDropdown.Item href="#action/3.2">Background</NavDropdown.Item>
-                            <NavDropdown.Item href="#action/3.3">Song</NavDropdown.Item>
+                            <NavDropdown.Item onClick={() => this.hello()}>Profile</NavDropdown.Item>
+                            <NavDropdown.Item onClick={() => this.hello()}>Background</NavDropdown.Item>
+                            <NavDropdown.Item onClick={() => this.hello()}>Song</NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>

@@ -105,12 +105,12 @@ class Tier extends React.Component {
   render() {
     return (
       <div style={{ marginBottom: '10px' }}>
-        <div class="card-stats mb-4 mb-xl-0 card">
+        <div class="card-stats card">
           <div class="card-body">
             <div class="row">
               <div class="col">
                 <h5 class="text-uppercase text-muted mb-0 card-title">{this.state.tierText}</h5>
-                <span class="h2 font-weight-bold mb-0">{this.state.points} Points</span>
+                <span class="h5 font-weight-bold mb-0">{this.state.points} Points</span>
               </div>
               <div class="col-auto col">
                 <IconContext.Provider value={{ color: this.state.color, size: '35px' }}>
