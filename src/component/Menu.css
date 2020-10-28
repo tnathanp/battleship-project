@@ -1,0 +1,3 @@
+.dropdown-toggle.nav-link::before {
+    display: none;
+}
