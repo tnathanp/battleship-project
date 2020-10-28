@@ -13,7 +13,12 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.logged = this.logged.bind(this);
-    this.state = {}
+    this.picChange = this.picChange.bind(this);
+    this.state = {
+      user: {
+        profile: 'https://ih1.redbubble.net/image.1573052278.8041/st,small,507x507-pad,600x600,f8f8f8.u1.jpg'
+      }
+    }
   }
 
   isAuthenticated() {
@@ -43,11 +48,19 @@ class App extends React.Component {
     //emit ออกไปเฉยๆว่า ออกเกม ให้ server handle room ด้วย
   }
 
+  picChange(url){
+    this.setState({
+      user: {
+        profile: url
+      }
+    });
+  }
+
   render() {
     return (
       <Container style={{ paddingTop: '2%' }}>
         <Row>
-          {this.isAuthenticated() ? (<Home/>) : (<LoginModal logged={this.logged}/>)}
+          {this.isAuthenticated() ? (<Home/>) : (<LoginModal logged={this.logged} currentPic={this.picChange}/>)}
         </Row>
       </Container>
     );

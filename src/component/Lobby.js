@@ -94,7 +94,7 @@ class Lobby extends React.Component {
                     <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>
                         <Form>
                             WIP
-                            </Form>
+                        </Form>
                     </Card.Text></Card.Body></Card.Header></Card></Col></Row></Container>
                 </Modal.Body>
                 <Modal.Footer>
@@ -106,10 +106,6 @@ class Lobby extends React.Component {
 
         return (
             <Container>
-
-                {this.state.showInviteFriend && modalInviteFriend}
-                {this.state.showCreateRoom && modalCreateRoom}
-
                 <Row>
                     <Col>
                         <Card style={{ width: '100%', height: '100%' }}>
@@ -139,6 +135,9 @@ class Lobby extends React.Component {
                                         <BsPersonPlusFill style={{ marginRight: '10px' }} /> Invite Friend
                                     </div>
                                 </Button>
+
+                                {this.state.showInviteFriend && modalInviteFriend}
+                                {this.state.showCreateRoom && modalCreateRoom}
 
                             </Card.Footer>
                         </Card>
