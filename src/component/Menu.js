@@ -10,12 +10,29 @@ import { HiHome } from 'react-icons/hi';
 import './Menu.css'
 
 class Menu extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            showDropDown: false
+        }
+    }
+
     hello() {
         Swal.fire({
             icon: 'success',
             title: 'Hello',
             text: 'Test',
         })
+    }
+
+    logout() {
+        localStorage.removeItem('isLogin');
+        localStorage.setItem('isLogin', false);
+        window.location.reload(false);
+    }
+    
+    handleDropDown() {
+        this.setState({ showDropDown: !this.state.showDropDown})
     }
 
     render() {
@@ -43,6 +60,8 @@ class Menu extends React.Component {
                     </Nav>
                     <Nav className="ml-auto">
                         <NavDropdown
+                            show={this.state.showDropDown}
+                            onClick={() => this.handleDropDown()}
                             title={<div style={{ display: 'flex', alignItems: 'center' }}>
                                 <FiSettings style={{ marginRight: '5px' }} />Settings
                                     </div>}
@@ -51,6 +70,7 @@ class Menu extends React.Component {
                             <NavDropdown.Item onClick={() => this.hello()}>Profile</NavDropdown.Item>
                             <NavDropdown.Item onClick={() => this.hello()}>Background</NavDropdown.Item>
                             <NavDropdown.Item onClick={() => this.hello()}>Song</NavDropdown.Item>
+                            <NavDropdown.Item onClick={() => this.logout()}>Logout</NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>

@@ -89,7 +89,7 @@ class Lobby extends React.Component {
 
         const modalCreateRoom = (
             <Modal centered size="lg" show="true">
-                <Modal.Header><Modal.Title>CreateRoom</Modal.Title></Modal.Header>
+                <Modal.Header><Modal.Title>Create Room</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>
                         <Form>

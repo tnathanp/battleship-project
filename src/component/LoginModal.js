@@ -5,6 +5,30 @@ import { BsFillPersonFill, BsFillLockFill } from 'react-icons/bs';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class LoginModal extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      form: {}
+    }
+  }
+
+  handleChange(e) {
+    let fieldName = e.target.name;
+    let fleldVal = e.target.value;
+    this.setState({form: {...this.state.form, [fieldName]: fleldVal}})
+  }
+
+  login() {
+    //check with server
+    if(this.state.form.user === 'admin' && this.state.form.pass === '123') {
+      localStorage.removeItem('isLogin');
+      localStorage.setItem('isLogin', true);
+      this.props.logged();
+    } else {
+      localStorage.setItem('isLogin', false);
+    }
+  }
+
   render() {
     return (
       <Container>
@@ -27,7 +51,7 @@ class LoginModal extends React.Component {
                       <BsFillPersonFill />
                     </InputGroup.Text>
                   </InputGroup.Prepend>
-                  <FormControl placeholder="Username" />
+                  <FormControl name="user" placeholder="Username" onChange={e => this.handleChange(e)}/>
                 </InputGroup>
 
                 <InputGroup className="mb-3">
@@ -36,10 +60,10 @@ class LoginModal extends React.Component {
                       <BsFillLockFill />
                     </InputGroup.Text>
                   </InputGroup.Prepend>
-                  <FormControl type="password" placeholder="Password" />
+                  <FormControl name="pass" type="password" placeholder="Password" onChange={e => this.handleChange(e)}/>
                 </InputGroup>
 
-                <Button variant="outline-secondary">Startนะจ๊ะ</Button>{' '}
+                <Button variant="outline-secondary" onClick={() => this.login()}>Login</Button>{' '}
               </div>
             </Jumbotron>
           </Col>
