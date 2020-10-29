@@ -76,7 +76,7 @@ class Lobby extends React.Component {
 
     render() {
         const modalInviteFriend = (
-            <Modal centered size="lg" show="true">
+            <Modal centered size="lg" show="true" backdrop="static">
                 <Modal.Header><Modal.Title>Invite Friend</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>
@@ -96,7 +96,7 @@ class Lobby extends React.Component {
         );
 
         const modalCreateRoom = (
-            <Modal centered size="lg" show="true">
+            <Modal centered size="lg" show="true" backdrop="static">
                 <Modal.Header><Modal.Title>Create Room</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>

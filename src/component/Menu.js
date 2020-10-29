@@ -24,20 +24,33 @@ class Menu extends React.Component {
     }
 
     logout() {
-        localStorage.removeItem('isLogin');
-        localStorage.setItem('isLogin', false);
-        window.location.reload(false);
+        Swal.fire({
+            title: 'Successfully logged out',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1000
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+                localStorage.removeItem('isLogin');
+                localStorage.setItem('isLogin', false);
+                Swal.close();
+                window.location.reload(false);
+            }
+        });
     }
 
     handleDropDown() {
+        if (this.state.showProfileSetting === true) {
+            return false
+        }
+
         this.setState({ showDropDown: !this.state.showDropDown })
     }
-
 
     render() {
         const modalProfileSetting = (
 
-            <Modal centered size="sm" show="true">
+            <Modal centered size="sm" show="show" backdrop="static">
                 <Modal.Header><Modal.Title>Your profile</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <div class="text-center">

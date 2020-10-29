@@ -1,6 +1,6 @@
 import React from 'react';
 import server from 'socket.io-client';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Button, Image } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const avatarChoices = [
@@ -22,21 +22,23 @@ class ProfileChoice extends React.Component {
         return (
             <div class="text-center">
                 <Row>
-                    {row1.map((pic) => {
+                    {row1.map(pic => {
                         return (
                             <Col>
-                                <input type='radio' name='profile' value={pic} onChange={e => this.props.currentPic(e.target.value)} />
-                                <img alt="" src={pic} width="75px" height="75px"></img>
+                                <Button variant="light" onClick={() => this.props.currentPic(pic)}>
+                                    <Image style={{ width: '80px', height: '80px' }} src={pic} thumbnail />
+                                </Button>
                             </Col>
                         );
                     })}
                 </Row>
                 <Row>
-                    {row2.map((pic) => {
+                    {row2.map(pic => {
                         return (
                             <Col>
-                                <input type='radio' name='profile' value={pic} onChange={e => this.props.currentPic(e.target.value)} />
-                                <img alt="" src={pic} width="75px" height="75px"></img>
+                                <Button variant="light" onClick={() => this.props.currentPic(pic)}>
+                                    <Image style={{ width: '80px', height: '80px' }} src={pic} thumbnail />
+                                </Button>
                             </Col>
                         );
                     })}

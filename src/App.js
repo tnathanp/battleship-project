@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 import Menu from './component/Menu';
 import Lobby from './component/Lobby';
 import Ranking from './component/Ranking';
-import LoginModal from './component/LoginModal';
+import Login from './component/Login';
 import Game from './component/Game';
 import Shop from './component/Shop';
 
@@ -69,7 +69,7 @@ class App extends React.Component {
       <Container style={{ paddingTop: '2%' }}>
         <Row>
           <Button onClick={() => this.startGame()}>Test start game</Button>
-          {this.isAuthenticated() ? this.state.isInGame ? (<Game info={this.state.user}/>) : (<Home />) : (<LoginModal logged={this.logged} currentPic={this.picChange} />)}
+          {this.isAuthenticated() ? this.state.isInGame ? (<Game info={this.state.user}/>) : (<Home />) : (<Login logged={this.logged} currentPic={this.picChange} />)}
         </Row>
       </Container>
     );
