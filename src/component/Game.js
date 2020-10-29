@@ -3,8 +3,28 @@ import server from 'socket.io-client';
 import { Row, Col, Container, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from 'sweetalert2';
+import './Game.css';
 
 class Game extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            data: []
+        }
+    }
+
+    renderBoard() {
+        let board = []
+        for (let row = 1; row <= 8; row++) {
+            let elem = []
+            for (let column = 1; column <= 8; column++) {
+                elem.push((<Square value={column} />));
+            }
+            board.push(elem);
+        }
+        return board;
+    }
 
     render() {
         return (
@@ -13,7 +33,7 @@ class Game extends React.Component {
                     <Col>
                         <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
                             <Card.Body>
-                                หวัดดีคร้าบบบบบบ
+                                    {this.renderBoard().map(each => (<div className="board-row">{each}</div>))}
                             </Card.Body>
                         </Card>
                     </Col>
@@ -51,6 +71,16 @@ class Game extends React.Component {
                 console.log('I was closed by the timer')
             }
         })
+    }
+}
+
+class Square extends React.Component {
+    render() {
+        return (
+            <button className="square">
+                {this.props.value}
+            </button>
+        );
     }
 }
 
