@@ -1,13 +1,15 @@
 import React from 'react';
 import server from 'socket.io-client';
-import { Row, Col, Container, Card } from 'react-bootstrap';
+import { Row, Col, Container, Card, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Menu from './component/Menu';
 import Lobby from './component/Lobby';
 import Ranking from './component/Ranking';
 import LoginModal from './component/LoginModal';
+import Game from './component/Game';
 
 class App extends React.Component {
   constructor(props) {
@@ -17,12 +19,13 @@ class App extends React.Component {
     this.state = {
       user: {
         profile: 'https://ih1.redbubble.net/image.1573052278.8041/st,small,507x507-pad,600x600,f8f8f8.u1.jpg'
-      }
+      },
+      isInGame: false
     }
   }
 
   isAuthenticated() {
-    if(localStorage.getItem('isLogin') === 'true'){
+    if (localStorage.getItem('isLogin') === 'true') {
       //auth check with server
       //if valid then return true else false
       return true;
@@ -33,6 +36,10 @@ class App extends React.Component {
   logged() {
     this.forceUpdate();
     Swal.fire("hello");
+  }
+
+  startGame() {
+    this.setState({ isInGame: true });
   }
 
   componentDidMount() {
@@ -48,7 +55,7 @@ class App extends React.Component {
     //emit ออกไปเฉยๆว่า ออกเกม ให้ server handle room ด้วย
   }
 
-  picChange(url){
+  picChange(url) {
     this.setState({
       user: {
         profile: url
@@ -60,7 +67,8 @@ class App extends React.Component {
     return (
       <Container style={{ paddingTop: '2%' }}>
         <Row>
-          {this.isAuthenticated() ? (<Home/>) : (<LoginModal logged={this.logged} currentPic={this.picChange}/>)}
+          <Button onClick={() => this.startGame()}>Test start game</Button>
+          {this.isAuthenticated() ? this.state.isInGame ? (<Game info={this.state.user}/>) : (<Home />) : (<LoginModal logged={this.logged} currentPic={this.picChange} />)}
         </Row>
       </Container>
     );
