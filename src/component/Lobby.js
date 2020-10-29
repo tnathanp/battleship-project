@@ -12,6 +12,7 @@ class Lobby extends React.Component {
         this.state = {
             roomList: [],
             friendID: '',
+            roomID: '',
             showInviteFriend: false,
             showCreateRoom: false
         }
@@ -34,8 +35,15 @@ class Lobby extends React.Component {
         })
     }
 
+    handleRoomID(e){
+        this.setState({
+            roomID: e.target.value
+        })
+    }
+
     createRoom() {
-        //send create room data to server
+        //send roomID,username data to server
+        //start game
     }
 
     invite() {
@@ -82,7 +90,7 @@ class Lobby extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => this.modalControl('if', false)}>Close</Button>
-                    <Button variant="primary" onClick={() => this.invite()}>Save Changes</Button>
+                    <Button variant="primary" onClick={() => this.invite(this.state.friendID)}>Send Invitation</Button>
                 </Modal.Footer>
             </Modal>
         );
@@ -93,13 +101,14 @@ class Lobby extends React.Component {
                 <Modal.Body>
                     <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>
                         <Form>
-                            WIP
+                        Room name
+                        <Form.Control onChange={e => this.handleRoomID(e)} placeholder="Enter room name" />
                         </Form>
                     </Card.Text></Card.Body></Card.Header></Card></Col></Row></Container>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => this.modalControl('cr', false)}>Close</Button>
-                    <Button variant="primary" onClick={() => this.createRoom()}>Save Changes</Button>
+                    <Button variant="primary" onClick={() => this.createRoom(this.state.roomID)}>Create</Button>
                 </Modal.Footer>
             </Modal>
         );
