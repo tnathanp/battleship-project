@@ -10,6 +10,7 @@ import Lobby from './component/Lobby';
 import Ranking from './component/Ranking';
 import LoginModal from './component/LoginModal';
 import Game from './component/Game';
+import Shop from './component/Shop';
 
 class App extends React.Component {
   constructor(props) {
@@ -88,7 +89,7 @@ class Home extends React.Component {
                   <Ranking />
                 </Route>
                 <Route path="/shop">
-                  <h1>WIP</h1>
+                 <Shop />
                 </Route>
                 <Route path="/">
                   <Lobby />
