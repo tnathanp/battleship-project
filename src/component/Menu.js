@@ -1,7 +1,7 @@
 import React from 'react';
 import server from 'socket.io-client';
 import Swal from 'sweetalert2';
-import { Navbar, NavDropdown, Nav } from 'react-bootstrap';
+import { Navbar, NavDropdown, Nav, Button, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { RiShoppingCart2Fill, RiShipLine } from 'react-icons/ri';
 import { AiFillTrophy } from 'react-icons/ai';
@@ -10,19 +10,16 @@ import { HiHome } from 'react-icons/hi';
 import './Menu.css'
 
 class Menu extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
-            showDropDown: false
+            showDropDown: false,
+            showProfileSetting: false
         }
     }
 
-    hello() {
-        Swal.fire({
-            icon: 'success',
-            title: 'Hello',
-            text: 'Test',
-        })
+    showProfileSetting() {
+        this.setState({ showProfileSetting: !this.state.showProfileSetting });
     }
 
     logout() {
@@ -30,12 +27,25 @@ class Menu extends React.Component {
         localStorage.setItem('isLogin', false);
         window.location.reload(false);
     }
-    
+
     handleDropDown() {
-        this.setState({ showDropDown: !this.state.showDropDown})
+        this.setState({ showDropDown: !this.state.showDropDown })
     }
 
     render() {
+        const modalProfileSetting = (
+            <Modal centered size="lg" show="true">
+                <Modal.Header><Modal.Title>eiei</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    WIP
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => this.showProfileSetting()}>Close</Button>
+                    <Button variant="primary">Save Changes</Button>
+                </Modal.Footer>
+            </Modal>
+        );
+
         return (
             <Navbar bg="dark" variant="dark" expand="lg" style={{ borderRadius: '10px 10px 0 0' }}>
                 <Navbar.Brand><RiShipLine />Eiei Battleship<RiShipLine /></Navbar.Brand>
@@ -67,7 +77,8 @@ class Menu extends React.Component {
                                     </div>}
                             drop='left'
                         >
-                            <NavDropdown.Item onClick={() => this.hello()}>Profile</NavDropdown.Item>
+                            <NavDropdown.Item onClick={() => this.showProfileSetting()}>Profile</NavDropdown.Item>
+                            {this.state.showProfileSetting && modalProfileSetting}
                             <NavDropdown.Item onClick={() => this.hello()}>Background</NavDropdown.Item>
                             <NavDropdown.Item onClick={() => this.hello()}>Song</NavDropdown.Item>
                             <NavDropdown.Item onClick={() => this.logout()}>Logout</NavDropdown.Item>
@@ -78,5 +89,6 @@ class Menu extends React.Component {
         );
     }
 }
+
 
 export default Menu;
