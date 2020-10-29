@@ -37,6 +37,7 @@ class App extends React.Component {
   logged() {
     this.forceUpdate();
     Swal.fire("hello");
+    //should add toast to welcome player back after refresh
   }
 
   startGame() {
