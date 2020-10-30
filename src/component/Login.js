@@ -51,8 +51,8 @@ class Login extends React.Component {
   changePic(url) {
     this.setState({
       form: {
-        user: this.state.user,
-        pass: this.state.pass,
+        user: this.state.form.user,
+        pass: this.state.form.pass,
         profile: url
       }
     });
