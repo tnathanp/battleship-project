@@ -19,72 +19,104 @@ http.listen(process.env.PORT || 7000, '0.0.0.0', () => {
     console.log('Listening');
 });
 
-server.on('connection', socket => {
-    
-    
-    socket.on('login', form => {
-        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-        client.connect(err => {
-            const collection = client.db("battleship-project").collection("user");
+app.get('/requestPic', (req, res) => {
+    let auth = req.query.auth;
+    MongoClient.connect(uri, function (err, db) {
+        if (err) throw err;
+        let conn = db.db("battleship-project").collection("user");
 
-            collection.findOne({
-                user: form.user
-            }).then(result => {
+        conn.findOne({ auth: auth }, function (err, result) {
+            if (err) throw err;
+            res.send(result.profile);
+            db.close();
+        })
+    })
+})
+
+let online = {};
+
+server.on('connection', socket => {
+
+    socket.on('login', form => {
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+
+            conn.findOne({ user: form.user }, function (err, result) {
+                if (err) throw err;
                 if (result != null) {
-                    if (result.user === form.user && result.pass === form.pass) {
+                    if (result.user === form.user && result.pass === form.pass)
                         socket.emit('success login', result.auth);
-                        client.close();
-                    } else {
+                    else
                         socket.emit('fail login');
-                        client.close();
-                    }
                 } else {
-                    let authKey = uuid.v4();
-                    collection.insertOne({
+                    let newAuthKey = uuid.v4();
+
+                    let payload = {
                         user: form.user,
                         pass: form.pass,
-                        auth: authKey,
+                        auth: newAuthKey,
                         profile: form.profile,
                         items: {
                             missile: 0,
                             glasses: 0
                         },
                         points: 0
-                    }).then(result => {
-                        socket.emit('success login', authKey);
-                        client.close();
+                    }
+
+                    conn.insertOne(payload, function (err, result) {
+                        if (err) throw err;
+                        socket.emit('success login', newAuthKey);
                     })
                 }
+                db.close();
             })
-        });
+        })
+
     });
 
     socket.on('online', auth => {
         //known bug: if client edit/clear their auth key, data will not show
-        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-        client.connect(err => {
-            const collection = client.db("battleship-project").collection("user");
+        //use auth key to determine name then respond that name and add to online list
+        /*MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
 
-            collection.findOne({
-                auth: auth
-            }).then(result => {
-                let data = {
-                    user: result.user,
-                    profile: result.profile,
-                    items: {
-                        missile: result.items.missile,
-                        glasses: result.items.glasses
-                    },
-                    points: result.points
-                }
-                socket.emit('connection ack', data);
-                client.close();
+            conn.findOne({ auth: auth }, function (err, result) {
+                if (err) throw err;
+                socket.emit('connection ack', result.user);
+                db.close();
             })
-        });
+        })*/
+        if (auth != null) {
+            online[auth] = true;
+            console.log(online);
+            console.log('\n');
+        }
+
     });
 
-    socket.on('disconnect', name => {
+    socket.on('offline', auth => {
         //remove name from list
+        if (auth != null) {
+            online[auth] = false;
+            console.log(online);
+            console.log('\n');
+        }
     })
 
+    socket.on('req profile pic', auth => {
+        if (auth != null) {
+            MongoClient.connect(uri, function (err, db) {
+                if (err) throw err;
+                let conn = db.db("battleship-project").collection("user");
+
+                conn.findOne({ auth: auth }, function (err, result) {
+                    if (err) throw err;
+                    socket.emit('res profile pic', result.profile);
+                    db.close();
+                })
+            })
+        }
+    })
 });
