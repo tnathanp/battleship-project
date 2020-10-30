@@ -1,5 +1,5 @@
 import React from 'react';
-import server from 'socket.io-client';
+import socket from '../connection';
 import Swal from 'sweetalert2';
 import { Row, Col, Card, Button, Container, Modal, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';

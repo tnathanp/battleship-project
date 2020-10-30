@@ -1,5 +1,5 @@
 import React from 'react';
-import server from 'socket.io-client';
+import socket from '../connection';
 import { Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { IconContext } from 'react-icons';

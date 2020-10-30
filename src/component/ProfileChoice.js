@@ -1,5 +1,5 @@
 import React from 'react';
-import server from 'socket.io-client';
+import socket from '../connection';
 import { Row, Col, Button, Image } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
