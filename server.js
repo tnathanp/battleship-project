@@ -107,6 +107,7 @@ server.on('connection', socket => {
             online[auth] = false;
             console.log(online);
             console.log('\n');
+            socket.disconnect();
         }
     })
 
