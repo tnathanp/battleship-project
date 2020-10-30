@@ -1,3 +1,3 @@
 import server from 'socket.io-client';
-let socket = server('localhost:7000');
+let socket = server('https://battleship-server.azurewebsites.net');
 export default socket;
