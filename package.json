@@ -4,6 +4,8 @@
     "description": "battleship game server",
     "dependencies": {
         "express": "^4.17.1",
-        "socket.io": "^2.3.0"
+        "mongodb": "^3.6.2",
+        "socket.io": "^2.3.0",
+        "uuid": "^8.3.1"
     }
 }
