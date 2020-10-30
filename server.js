@@ -21,7 +21,6 @@ http.listen(process.env.PORT || 7000, '0.0.0.0', () => {
 
 server.on('connection', socket => {
     
-    console.log(socket.request.headers['x-forwarded-for']);
     
     socket.on('login', form => {
         const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -29,20 +28,19 @@ server.on('connection', socket => {
             const collection = client.db("battleship-project").collection("user");
 
             collection.findOne({
-                name: 'admin'
+                user: form.user
             }).then(result => {
                 if (result != null) {
-                    if (result.name === form.name && result.pass === form.pass) {
+                    if (result.user === form.user && result.pass === form.pass) {
                         socket.emit('success login', result.auth);
                         client.close();
                     } else {
                         socket.emit('fail login');
-                        client.close();
                     }
                 } else {
                     let authKey = uuid.v4();
                     collection.insertOne({
-                        name: form.name,
+                        user: form.user,
                         pass: form.pass,
                         auth: authKey,
                         profile: form.profile,
@@ -51,9 +49,8 @@ server.on('connection', socket => {
                             glasses: 0
                         },
                         points: 0
-                    }).then(() => {
+                    }).then(result => {
                         socket.emit('success login', authKey);
-                        client.close();
                     })
                 }
             })
@@ -70,7 +67,7 @@ server.on('connection', socket => {
                 auth: auth
             }).then(result => {
                 let data = {
-                    name: result.name,
+                    user: result.user,
                     profile: result.profile,
                     items: {
                         missile: result.items.missile,
@@ -79,7 +76,6 @@ server.on('connection', socket => {
                     points: result.points
                 }
                 socket.emit('connection ack', data);
-                client.close();
             })
         });
     });
