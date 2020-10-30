@@ -19,6 +19,8 @@ http.listen(process.env.PORT || 7000, '0.0.0.0', () => {
     console.log('Listening');
 });
 
+//---------------------------------------------------------------------
+
 app.get('/requestPic', (req, res) => {
     let auth = req.query.auth;
     MongoClient.connect(uri, function (err, db) {
@@ -37,6 +39,28 @@ let online = {};
 
 server.on('connection', socket => {
 
+    //Handling multiple connection
+    let auth = socket.handshake.query.auth;
+    if(auth != null && auth != 'null'){
+		if(auth in online) {
+			if(online[auth] === socket.id) {
+                //Same connection
+                console.log(online);
+			} else {
+                //Multiple connection detected
+                server.to(online[auth]).emit('forced logout');
+                socket.emit('forced logout');
+				console.log(online);
+				socket.disconnect();
+			}
+		} else {
+            //New connection
+			online[auth] = socket.id;
+			console.log(online);
+		}
+	}
+
+    //User validation and update online list
     socket.on('login', form => {
         MongoClient.connect(uri, function (err, db) {
             if (err) throw err;
@@ -48,6 +72,8 @@ server.on('connection', socket => {
                     if (result.user === form.user && result.pass === form.pass) {
                         let currentAuthKey = result.auth;
                         conn.updateOne({ user: form.user }, { $set: { profile: form.profile } }, function (err, result) {
+                            online[currentAuthKey] = socket.id;
+                            console.log(online);
                             socket.emit('success login', currentAuthKey);
                         })
                     }
@@ -71,6 +97,8 @@ server.on('connection', socket => {
 
                     conn.insertOne(payload, function (err, result) {
                         if (err) throw err;
+                        online[newAuthKey] = socket.id;
+                        console.log(online);
                         socket.emit('success login', newAuthKey);
                     })
                 }
@@ -80,33 +108,11 @@ server.on('connection', socket => {
 
     });
 
-    socket.on('online', auth => {
-        //known bug: if client edit/clear their auth key, data will not show
-        //use auth key to determine name then respond that name and add to online list
-        /*MongoClient.connect(uri, function (err, db) {
-            if (err) throw err;
-            let conn = db.db("battleship-project").collection("user");
-
-            conn.findOne({ auth: auth }, function (err, result) {
-                if (err) throw err;
-                socket.emit('connection ack', result.user);
-                db.close();
-            })
-        })*/
-        if (auth != null) {
-            online[auth] = true;
-            console.log(online);
-            console.log('\n');
-        }
-
-    });
-
+    //Connection close and update online list
     socket.on('offline', auth => {
-        //remove name from list
         if (auth != null) {
-            online[auth] = false;
+            delete online[auth];
             console.log(online);
-            console.log('\n');
             socket.disconnect();
         }
     })
