@@ -10,11 +10,68 @@ class Shop extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            pocket:0,
+            pocket:100,
             missileOwned:0,
             glassesOwned:0
         }
     }
+    fiveShotBuyOne(){
+        if(this.state.pocket - 100 < 0){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: "You don't have enough money"
+              })
+              return
+        }
+        this.setState({
+            missileOwned: this.state.missileOwned+=1,
+            pocket: this.state.pocket - 100
+        })
+    }
+    fiveShotBuyTen(){
+        if(this.state.pocket - 1000 < 0){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: "You don't have enough money"
+              })
+              return
+        }
+        this.setState({
+            missileOwned: this.state.missileOwned+=10,
+            pocket: this.state.pocket - 1000
+        })
+    }
+    glassesBuyOne(){
+        if( this.state.pocket - 50 < 0){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: "You don't have enough money"
+              })
+              return
+        }
+        this.setState({
+            glassesOwned:this.state. glassesOwned+=1,
+            pocket: this.state.pocket - 50
+        })
+    }
+    glassesBuyTen(){
+        if(this.state.pocket - 500 < 0){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: "You don't have enough money"
+              })
+              return
+        }
+        this.setState({
+            glassesOwned: this.state.glassesOwned+=10,
+            pocket: this.state.pocket - 500
+        })
+    }
+
 
     render() {
         return (
@@ -34,8 +91,8 @@ class Shop extends React.Component {
                                         <Card.Text>Currently owned: {this.state.missileOwned}</Card.Text>
                                         <Card.Text style= {{marginTop: '-15px'}}>Price: 100</Card.Text>
                                         <Card.Text style= {{marginBottom: '0px'}}>Purchase:</Card.Text>
-                                        <Button variant="outline-primary" style= {{width: '100px', marginRight: '10px'}}>X1</Button>
-                                        <Button variant="outline-primary" style= {{width: '100px'}}>X10</Button>
+                                        <Button onClick = {() => this.fiveShotBuyOne()} variant="outline-primary" style= {{width: '100px', marginRight: '10px'}}>X1</Button>
+                                        <Button onClick = {() => this.fiveShotBuyTen()} variant="outline-primary" style= {{width: '100px'}}>X10</Button>
                                     </Card.Body>
                                 </Card>
                             </Col>
@@ -51,8 +108,8 @@ class Shop extends React.Component {
                                         <Card.Text>Currently owned: {this.state.glassesOwned}</Card.Text>
                                         <Card.Text style= {{marginTop: '-15px'}}>Price: 50</Card.Text>
                                         <Card.Text style= {{marginBottom: '0px'}}>Purchase:</Card.Text>
-                                        <Button variant="outline-primary" style= {{width: '100px', marginRight: '10px'}}>X1</Button>
-                                        <Button variant="outline-primary" style= {{width: '100px'}}>X10</Button>
+                                        <Button onClick = {() => this.glassesBuyOne()} variant="outline-primary" style= {{width: '100px', marginRight: '10px'}}>X1</Button>
+                                        <Button onClick = {() => this.glassesBuyTen()} variant="outline-primary" style= {{width: '100px'}}>X10</Button>
                                     </Card.Body>
                                 </Card>
                             </Col>
