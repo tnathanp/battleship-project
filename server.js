@@ -36,6 +36,7 @@ server.on('connection', socket => {
                         client.close();
                     } else {
                         socket.emit('fail login');
+                        client.close();
                     }
                 } else {
                     let authKey = uuid.v4();
@@ -51,6 +52,7 @@ server.on('connection', socket => {
                         points: 0
                     }).then(result => {
                         socket.emit('success login', authKey);
+                        client.close();
                     })
                 }
             })
@@ -76,6 +78,7 @@ server.on('connection', socket => {
                     points: result.points
                 }
                 socket.emit('connection ack', data);
+                client.close();
             })
         });
     });
