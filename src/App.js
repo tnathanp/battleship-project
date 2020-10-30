@@ -12,14 +12,21 @@ import Login from './component/Login';
 import Game from './component/Game';
 import Shop from './component/Shop';
 
+let socket = server('https://battleship-server.azurewebsites.net');
+
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.logged = this.logged.bind(this);
-    this.picChange = this.picChange.bind(this);
     this.state = {
       user: {
-        profile: 'https://ih1.redbubble.net/image.1573052278.8041/st,small,507x507-pad,600x600,f8f8f8.u1.jpg'
+        name: '',
+        profile: '',
+        items: {
+          missile: 0,
+          glasses: 0
+        },
+        points: ''
       },
       isInGame: false
     }
@@ -27,8 +34,7 @@ class App extends React.Component {
 
   isAuthenticated() {
     if (localStorage.getItem('isLogin') === 'true') {
-      //auth check with server
-      //if valid then return true else false
+      socket.emit('online', localStorage.getItem('auth'));
       return true;
     }
     return false;
@@ -37,7 +43,6 @@ class App extends React.Component {
   logged() {
     this.forceUpdate();
     Swal.fire("hello");
-    //should add toast to welcome player back after refresh
   }
 
   startGame() {
@@ -46,6 +51,10 @@ class App extends React.Component {
 
   componentDidMount() {
     window.addEventListener('beforeunload', this.beforeunload.bind(this));
+
+    socket.on('connection ack', data => {
+      this.setState({ user: data });
+    })
   }
 
   componentWillUnmount() {
@@ -53,16 +62,8 @@ class App extends React.Component {
   }
 
   beforeunload(e) {
-    //disconnect code
     //emit ออกไปเฉยๆว่า ออกเกม ให้ server handle room ด้วย
-  }
-
-  picChange(url) {
-    this.setState({
-      user: {
-        profile: url
-      }
-    });
+    socket.emit('disconnect');
   }
 
   render() {
@@ -70,7 +71,7 @@ class App extends React.Component {
       <Container style={{ paddingTop: '2%' }}>
         <Row>
           <Button onClick={() => this.startGame()}>Test start game</Button>
-          {this.isAuthenticated() ? this.state.isInGame ? (<Game info={this.state.user}/>) : (<Home />) : (<Login logged={this.logged} currentPic={this.picChange} />)}
+          {this.isAuthenticated() ? this.state.isInGame ? (<Game info={this.state.user} />) : (<Home info={this.state.user} />) : (<Login logged={this.logged} />)}
         </Row>
       </Container>
     );
@@ -81,7 +82,7 @@ class Home extends React.Component {
   render() {
     return (
       <Col>
-        <Menu />
+        <Menu info={this.props.info} />
         <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
           <Card.Body>
             <Router>
@@ -90,7 +91,7 @@ class Home extends React.Component {
                   <Ranking />
                 </Route>
                 <Route path="/shop">
-                 <Shop />
+                  <Shop />
                 </Route>
                 <Route path="/">
                   <Lobby />

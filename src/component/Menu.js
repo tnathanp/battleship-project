@@ -1,7 +1,7 @@
 import React from 'react';
 import server from 'socket.io-client';
 import Swal from 'sweetalert2';
-import { Navbar, NavDropdown, Nav, Button, Modal, Card } from 'react-bootstrap';
+import { Navbar, NavDropdown, Nav, Button, Modal, Card,Row } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { RiShoppingCart2Fill, RiShipLine } from 'react-icons/ri';
 import { AiFillTrophy } from 'react-icons/ai';
@@ -9,6 +9,8 @@ import { FiSettings } from 'react-icons/fi';
 import { HiHome } from 'react-icons/hi';
 import { MdExitToApp } from 'react-icons/md';
 import './Menu.css';
+
+let socket = server('https://battleship-server.azurewebsites.net');
 
 class Menu extends React.Component {
     constructor(props) {
@@ -24,15 +26,17 @@ class Menu extends React.Component {
     }
 
     logout() {
+        localStorage.removeItem('isLogin');
+        localStorage.setItem('isLogin', false);
+        socket.emit('disconnect');
         Swal.fire({
             title: 'Successfully logged out',
             icon: 'success',
             showConfirmButton: false,
+            allowOutsideClick: false,
             timer: 1000
         }).then((result) => {
             if (result.dismiss === Swal.DismissReason.timer) {
-                localStorage.removeItem('isLogin');
-                localStorage.setItem('isLogin', false);
                 Swal.close();
                 window.location.reload(false);
             }
@@ -50,19 +54,18 @@ class Menu extends React.Component {
     render() {
         const modalProfileSetting = (
 
-            <Modal centered size="sm" show="show" backdrop="static">
+            <Modal centered size="sm" show="true" backdrop="static">
                 <Modal.Header><Modal.Title>Your profile</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <div class="text-center">
+                    <Row className="justify-content-md-center">
                         <Card style={{ width: '15rem' }}>
-                            <Card.Img variant="top" src="รูป" />
+                            <Card.Img variant="top" src={this.props.info.profile} />
                             <Card.Body>
                                 <Card.Title>ชื่อ...</Card.Title>
-
                                 <Button variant="secondary">Edit</Button>
                             </Card.Body>
                         </Card>
-                    </div>
+                    </Row>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => this.showProfileSetting()}>Close</Button>

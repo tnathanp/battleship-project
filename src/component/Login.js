@@ -6,17 +6,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from 'sweetalert2';
 import ProfileChoice from './ProfileChoice';
 
+let socket = server('https://battleship-server.azurewebsites.net');
+
 class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.passPic = this.passPic.bind(this);
+    this.changePic = this.changePic.bind(this);
     this.state = {
       form: {
         user: '',
-        pass: ''
+        pass: '',
+        profile: 'https://ih1.redbubble.net/image.1573052278.8041/st,small,507x507-pad,600x600,f8f8f8.u1.jpg'
       },
-      showProfileChoice: false,
-      currentPic: 'https://ih1.redbubble.net/image.1573052278.8041/st,small,507x507-pad,600x600,f8f8f8.u1.jpg'
+      showProfileChoice: false
     }
   }
 
@@ -33,24 +35,14 @@ class Login extends React.Component {
   }
 
   login() {
-    //check with server
-    if (this.state.form.user === 'admin' && this.state.form.pass === '123') {
-      localStorage.removeItem('isLogin');
-      localStorage.setItem('isLogin', true);
-      this.props.logged();
-    } else if (this.state.form.user === '' || this.state.form.pass === '') {
+    if (this.state.form.user === '' || this.state.form.pass === '') {
       Swal.fire({
         title: 'Empty field',
         icon: 'error'
       });
       localStorage.setItem('isLogin', false);
     } else {
-      Swal.fire({
-        title: 'Failed',
-        text: 'Wrong username or password',
-        icon: 'error'
-      });
-      localStorage.setItem('isLogin', false);
+      socket.emit('login', this.state.form);
     }
   }
 
@@ -58,13 +50,34 @@ class Login extends React.Component {
     this.setState({ showProfileChoice: !this.state.showProfileChoice })
   }
 
-  passPic(url) {
-    console.log(url);
+  changePic(url) {
     this.setState({
-      currentPic: url
+      form: {
+        user: this.state.user,
+        pass: this.state.pass,
+        profile: url
+      }
     });
-    this.props.currentPic(url);
     this.clickProfileChoice();
+  }
+
+  componentDidMount() {
+    socket.on('success login', auth => {
+      localStorage.removeItem('auth');
+      localStorage.setItem('auth', auth);
+      localStorage.removeItem('isLogin');
+      localStorage.setItem('isLogin', true);
+      this.props.logged();
+    });
+
+    socket.on('fail login', () => {
+      Swal.fire({
+        title: 'Failed',
+        text: 'Wrong username or password',
+        icon: 'error'
+      });
+      localStorage.setItem('isLogin', false);
+    })
   }
 
   render() {
@@ -73,7 +86,7 @@ class Login extends React.Component {
         <Modal.Header><Modal.Title>Choose Profile Picture</Modal.Title></Modal.Header>
         <Modal.Body>
           <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>
-            <ProfileChoice currentPic={this.passPic} />
+            <ProfileChoice currentPic={this.changePic} />
           </Card.Text></Card.Body></Card.Header></Card></Col></Row></Container>
         </Modal.Body>
       </Modal>
@@ -98,7 +111,7 @@ class Login extends React.Component {
                     <Col md={4}>
 
                       <Button variant="outline-secondary" size="sm" style={{ marginBottom: '20px' }} onClick={() => this.clickProfileChoice()}>
-                        <Image style={{ width: '80px', height: '80px', marginTop: '5px', marginBottom: '5px' }} src={this.state.currentPic} thumbnail />
+                        <Image style={{ width: '80px', height: '80px', marginTop: '5px', marginBottom: '5px' }} src={this.state.form.profile} thumbnail />
                       </Button>
                       {this.state.showProfileChoice && modalProfileChoice}
 
