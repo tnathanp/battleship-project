@@ -1,12 +1,10 @@
 import React from 'react';
-import server from 'socket.io-client';
+import socket from '../connection';
 import { Image, Row, Col, Container, FormControl, InputGroup, Button, Modal, Card } from 'react-bootstrap';
 import { BsFillPersonFill, BsFillLockFill } from 'react-icons/bs';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from 'sweetalert2';
 import ProfileChoice from './ProfileChoice';
-
-let socket = server('https://battleship-server.azurewebsites.net');
 
 class Login extends React.Component {
   constructor(props) {
@@ -67,7 +65,7 @@ class Login extends React.Component {
       localStorage.setItem('auth', auth);
       localStorage.removeItem('isLogin');
       localStorage.setItem('isLogin', true);
-      this.props.logged();
+      this.props.logged(this.state.user);
     });
 
     socket.on('fail login', () => {

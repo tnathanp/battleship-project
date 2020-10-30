@@ -1,5 +1,5 @@
 import React from 'react';
-import server from 'socket.io-client';
+import socket from './connection';
 import { Row, Col, Container, Card, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
@@ -12,22 +12,11 @@ import Login from './component/Login';
 import Game from './component/Game';
 import Shop from './component/Shop';
 
-let socket = server('https://battleship-server.azurewebsites.net');
-
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.logged = this.logged.bind(this);
     this.state = {
-      user: {
-        name: '',
-        profile: '',
-        items: {
-          missile: 0,
-          glasses: 0
-        },
-        points: ''
-      },
       isInGame: false
     }
   }
@@ -40,9 +29,9 @@ class App extends React.Component {
     return false;
   }
 
-  logged() {
+  logged(name) {
+    Swal.fire("Hello " + name);
     this.forceUpdate();
-    Swal.fire("hello");
   }
 
   startGame() {
@@ -51,10 +40,6 @@ class App extends React.Component {
 
   componentDidMount() {
     window.addEventListener('beforeunload', this.beforeunload.bind(this));
-
-    socket.on('connection ack', data => {
-      this.setState({ user: data });
-    })
   }
 
   componentWillUnmount() {
@@ -63,7 +48,7 @@ class App extends React.Component {
 
   beforeunload(e) {
     //emit ออกไปเฉยๆว่า ออกเกม ให้ server handle room ด้วย
-    socket.emit('disconnect');
+    socket.emit('offline', localStorage.getItem('auth'));
   }
 
   render() {
@@ -71,7 +56,7 @@ class App extends React.Component {
       <Container style={{ paddingTop: '2%' }}>
         <Row>
           <Button onClick={() => this.startGame()}>Test start game</Button>
-          {this.isAuthenticated() ? this.state.isInGame ? (<Game info={this.state.user} />) : (<Home info={this.state.user} />) : (<Login logged={this.logged} />)}
+          {this.isAuthenticated() ? this.state.isInGame ? (<Game />) : (<Home />) : (<Login logged={this.logged} />)}
         </Row>
       </Container>
     );
@@ -82,7 +67,7 @@ class Home extends React.Component {
   render() {
     return (
       <Col>
-        <Menu info={this.props.info} />
+        <Menu />
         <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
           <Card.Body>
             <Router>

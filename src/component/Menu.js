@@ -1,21 +1,20 @@
 import React from 'react';
-import server from 'socket.io-client';
+import socket from '../connection';
 import Swal from 'sweetalert2';
-import { Navbar, NavDropdown, Nav, Button, Modal, Card,Row } from 'react-bootstrap';
+import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { RiShoppingCart2Fill, RiShipLine } from 'react-icons/ri';
-import { AiFillTrophy } from 'react-icons/ai';
+import { AiFillAlipaySquare, AiFillTrophy } from 'react-icons/ai';
 import { FiSettings } from 'react-icons/fi';
 import { HiHome } from 'react-icons/hi';
 import { MdExitToApp } from 'react-icons/md';
 import './Menu.css';
 
-let socket = server('https://battleship-server.azurewebsites.net');
-
 class Menu extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            currentProfilePic: '',
             showDropDown: false,
             showProfileSetting: false
         }
@@ -28,7 +27,8 @@ class Menu extends React.Component {
     logout() {
         localStorage.removeItem('isLogin');
         localStorage.setItem('isLogin', false);
-        socket.emit('disconnect');
+        socket.emit('offline', localStorage.getItem('auth'));
+        localStorage.removeItem('auth');
         Swal.fire({
             title: 'Successfully logged out',
             icon: 'success',
@@ -48,7 +48,21 @@ class Menu extends React.Component {
             return false
         }
 
+        socket.emit('req profile pic', localStorage.getItem('auth'));
+
         this.setState({ showDropDown: !this.state.showDropDown })
+    }
+
+    changeProfile() {
+        //socket emit change profile
+    }
+
+    componentDidMount() {
+        socket.on('res profile pic', url => {
+            this.setState({
+                currentProfilePic: url
+            })
+        })
     }
 
     render() {
@@ -59,7 +73,7 @@ class Menu extends React.Component {
                 <Modal.Body>
                     <Row className="justify-content-md-center">
                         <Card style={{ width: '15rem' }}>
-                            <Card.Img variant="top" src={this.props.info.profile} />
+                            <Card.Img variant="top" src={this.state.currentProfilePic} />
                             <Card.Body>
                                 <Card.Title>ชื่อ...</Card.Title>
                                 <Button variant="secondary">Edit</Button>
