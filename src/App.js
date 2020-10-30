@@ -22,15 +22,11 @@ class App extends React.Component {
   }
 
   isAuthenticated() {
-    if (localStorage.getItem('isLogin') === 'true') {
-      socket.emit('online', localStorage.getItem('auth'));
-      return true;
-    }
-    return false;
+    return localStorage.getItem('isLogin') === 'true';
   }
 
   logged(name) {
-    Swal.fire("Hello " + name);
+    Swal.fire("Hello, " + name);
     this.forceUpdate();
   }
 

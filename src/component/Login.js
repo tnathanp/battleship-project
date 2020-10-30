@@ -40,6 +40,12 @@ class Login extends React.Component {
       });
       localStorage.setItem('isLogin', false);
     } else {
+      Swal.fire({
+        title: 'Loading',
+        willOpen: () => {
+          Swal.showLoading()
+        }
+      })
       socket.emit('login', this.state.form);
     }
   }
@@ -61,14 +67,16 @@ class Login extends React.Component {
 
   componentDidMount() {
     socket.on('success login', auth => {
+      Swal.close();
       localStorage.removeItem('auth');
       localStorage.setItem('auth', auth);
       localStorage.removeItem('isLogin');
       localStorage.setItem('isLogin', true);
-      this.props.logged(this.state.user);
+      this.props.logged(this.state.form.user);
     });
 
     socket.on('fail login', () => {
+      Swal.close();
       Swal.fire({
         title: 'Failed',
         text: 'Wrong username or password',
