@@ -20,7 +20,9 @@ http.listen(process.env.PORT || 7000, '0.0.0.0', () => {
 });
 
 server.on('connection', socket => {
-
+    
+    console.log(socket.request.headers['x-forwarded-for']);
+    
     socket.on('login', form => {
         const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         client.connect(err => {
