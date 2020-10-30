@@ -45,10 +45,15 @@ server.on('connection', socket => {
             conn.findOne({ user: form.user }, function (err, result) {
                 if (err) throw err;
                 if (result != null) {
-                    if (result.user === form.user && result.pass === form.pass)
-                        socket.emit('success login', result.auth);
-                    else
+                    if (result.user === form.user && result.pass === form.pass) {
+                        let currentAuthKey = result.auth;
+                        conn.updateOne({ user: form.user }, { $set: { profile: form.profile } }, function (err, result) {
+                            socket.emit('success login', currentAuthKey);
+                        })
+                    }
+                    else {
                         socket.emit('fail login');
+                    }
                 } else {
                     let newAuthKey = uuid.v4();
 
