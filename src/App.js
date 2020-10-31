@@ -34,10 +34,6 @@ class App extends React.Component {
     this.setState({ isInGame: true });
   }
 
-  componentWillUnmount() {
-    socket.emit('offline', localStorage.getItem('auth'));
-  }
-
   render() {
     return (
       <Router>
