@@ -36,61 +36,6 @@ class Ranking extends React.Component {
 
 }
 
-/*class Bar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      color: '',
-      height: '',
-      shift: ''
-    }
-  }
-
-  render() {
-    return (
-      <Container>
-        <Card className="text-center" style={{ height: '50px', marginTop: this.state.shift, marginBottom: '5px' }}>
-          <Card.Header>
-            <Card.Title>Name</Card.Title>
-          </Card.Header>
-        </Card>
-        <Card className="text-center" bg={this.state.color} style={{ height: this.state.height }}>
-          <Card.Body>
-            <Card.Text>test</Card.Text>
-          </Card.Body>
-        </Card>
-      </Container>
-    );
-  }
-
-  componentDidMount() {
-    switch (this.props.rank) {
-      case '1':
-        this.setState({
-          color: 'primary',
-          height: '200px'
-        })
-        break;
-
-      case '2':
-        this.setState({
-          color: 'danger',
-          height: '150px',
-          shift: '50px'
-        })
-        break;
-
-      case '3':
-        this.setState({
-          color: 'warning',
-          height: '100px',
-          shift: '100px'
-        })
-        break;
-    }
-  }
-}*/
-
 class Tier extends React.Component {
   constructor(props) {
     super(props);
