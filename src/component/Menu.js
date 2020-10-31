@@ -2,9 +2,10 @@ import React from 'react';
 import socket from '../connection';
 import Swal from 'sweetalert2';
 import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row } from 'react-bootstrap';
+import { Redirect } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { RiShoppingCart2Fill, RiShipLine } from 'react-icons/ri';
-import { AiFillAlipaySquare, AiFillTrophy } from 'react-icons/ai';
+import { AiFillTrophy } from 'react-icons/ai';
 import { FiSettings } from 'react-icons/fi';
 import { HiHome } from 'react-icons/hi';
 import { MdExitToApp } from 'react-icons/md';
@@ -14,14 +15,43 @@ class Menu extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            redirect: {
+                lobby: false,
+                shop: false,
+                rank: false
+            },
             currentProfilePic: '',
             showDropDown: false,
             showProfileSetting: false
         }
     }
 
+    navigate(dest) {
+        this.setState({
+            redirect: {
+                lobby: dest === 'lobby',
+                shop: dest === 'shop',
+                rank: dest === 'rank'
+            }
+        })
+    }
+
+    handleDropDown() {
+        if (this.state.showProfileSetting === true) {
+            return false
+        }
+
+        socket.emit('req profile pic', localStorage.getItem('auth'));
+
+        this.setState({ showDropDown: !this.state.showDropDown })
+    }
+
     showProfileSetting() {
         this.setState({ showProfileSetting: !this.state.showProfileSetting });
+    }
+
+    changeProfile() {
+        //socket emit change profile
     }
 
     logout() {
@@ -43,21 +73,23 @@ class Menu extends React.Component {
         });
     }
 
-    handleDropDown() {
-        if (this.state.showProfileSetting === true) {
-            return false
-        }
-
-        socket.emit('req profile pic', localStorage.getItem('auth'));
-
-        this.setState({ showDropDown: !this.state.showDropDown })
-    }
-
-    changeProfile() {
-        //socket emit change profile
-    }
-
     componentDidMount() {
+        socket.on('forced logout', () => {
+            Swal.fire({
+                title: 'Multiple instances detected',
+                icon: 'error',
+                text: 'You will be forced to logout',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                timer: 2000
+            }).then(result => {
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    Swal.close();
+                    this.logout();
+                }
+            })
+        })
+
         socket.on('res profile pic', url => {
             this.setState({
                 currentProfilePic: url
@@ -66,8 +98,8 @@ class Menu extends React.Component {
     }
 
     render() {
-        const modalProfileSetting = (
 
+        const modalProfileSetting = (
             <Modal centered size="sm" show="true" backdrop="static">
                 <Modal.Header><Modal.Title>Your profile</Modal.Title></Modal.Header>
                 <Modal.Body>
@@ -86,7 +118,6 @@ class Menu extends React.Component {
                     <Button variant="primary">Save Changes</Button>
                 </Modal.Footer>
             </Modal>
-
         );
 
         return (
@@ -95,17 +126,20 @@ class Menu extends React.Component {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse>
                     <Nav>
-                        <Nav.Link href="/">
+                        <Nav.Link onClick={() => this.navigate('lobby')}>
+                            {this.state.redirect.lobby && (<Redirect to='/' />)}
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <HiHome style={{ marginRight: '5px' }} /> Lobby
                             </div>
                         </Nav.Link>
-                        <Nav.Link href="/shop">
+                        <Nav.Link onClick={() => this.navigate('shop')}>
+                            {this.state.redirect.shop && (<Redirect to='/shop' />)}
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <RiShoppingCart2Fill style={{ marginRight: '5px' }} />  Shop
                             </div>
                         </Nav.Link>
-                        <Nav.Link href="/rank">
+                        <Nav.Link onClick={() => this.navigate('rank')}>
+                            {this.state.redirect.rank && (<Redirect to='/rank' />)}
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <AiFillTrophy style={{ marginRight: '5px' }} />Rank
                             </div>
@@ -136,6 +170,5 @@ class Menu extends React.Component {
         );
     }
 }
-
 
 export default Menu;

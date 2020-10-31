@@ -34,27 +34,20 @@ class App extends React.Component {
     this.setState({ isInGame: true });
   }
 
-  componentDidMount() {
-    window.addEventListener('beforeunload', this.beforeunload.bind(this));
-  }
-
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.beforeunload.bind(this));
-  }
-
-  beforeunload(e) {
-    //emit ออกไปเฉยๆว่า ออกเกม ให้ server handle room ด้วย
     socket.emit('offline', localStorage.getItem('auth'));
   }
 
   render() {
     return (
-      <Container style={{ paddingTop: '2%' }}>
-        <Row>
-          <Button onClick={() => this.startGame()}>Test start game</Button>
-          {this.isAuthenticated() ? this.state.isInGame ? (<Game />) : (<Home />) : (<Login logged={this.logged} />)}
-        </Row>
-      </Container>
+      <Router>
+        <Container style={{ paddingTop: '2%' }}>
+          <Row>
+            <Button onClick={() => this.startGame()}>Test start game</Button>
+            {this.isAuthenticated() ? this.state.isInGame ? (<Game />) : (<Home />) : (<Login logged={this.logged} />)}
+          </Row>
+        </Container>
+      </Router>
     );
   }
 }
@@ -63,24 +56,32 @@ class Home extends React.Component {
   render() {
     return (
       <Col>
-        <Menu />
-        <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
-          <Card.Body>
-            <Router>
-              <Switch>
-                <Route path="/rank">
-                  <Ranking />
-                </Route>
-                <Route path="/shop">
-                  <Shop />
-                </Route>
-                <Route path="/">
-                  <Lobby />
-                </Route>
-              </Switch>
-            </Router>
-          </Card.Body>
-        </Card>
+        <Switch>
+          <Route path="/rank">
+            <Menu />
+            <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
+              <Card.Body>
+                <Ranking />
+              </Card.Body>
+            </Card>
+          </Route>
+          <Route path="/shop">
+            <Menu />
+            <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
+              <Card.Body>
+                <Shop />
+              </Card.Body>
+            </Card>
+          </Route>
+          <Route path="/">
+            <Menu />
+            <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
+              <Card.Body>
+                <Lobby />
+              </Card.Body>
+            </Card>
+          </Route>
+        </Switch>
       </Col>
     );
   }
