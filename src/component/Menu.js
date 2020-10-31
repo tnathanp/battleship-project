@@ -74,22 +74,6 @@ class Menu extends React.Component {
     }
 
     componentDidMount() {
-        socket.on('forced logout', () => {
-            Swal.fire({
-                title: 'Multiple instances detected',
-                icon: 'error',
-                text: 'You will be forced to logout',
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                timer: 2000
-            }).then(result => {
-                if (result.dismiss === Swal.DismissReason.timer) {
-                    Swal.close();
-                    this.logout();
-                }
-            })
-        })
-
         socket.on('res profile pic', url => {
             this.setState({
                 currentProfilePic: url
