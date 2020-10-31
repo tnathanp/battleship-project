@@ -1,6 +1,6 @@
 let app = require('express')();
 let http = require('http').createServer(app);
-let server = require('socket.io')(http);
+let server = require('socket.io')(http, {'pingInterval': 2000, 'pingTimeout': 5000});
 let uuid = require('uuid');
 
 const MongoClient = require('mongodb').MongoClient;
