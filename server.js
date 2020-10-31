@@ -41,24 +41,24 @@ server.on('connection', socket => {
 
     //Handling multiple connection
     let auth = socket.handshake.query.auth;
-    if(auth != null && auth != 'null'){
-		if(auth in online) {
-			if(online[auth] === socket.id) {
+    if (auth != null && auth != 'null') {
+        if (auth in online) {
+            if (online[auth] === socket.id) {
                 //Same connection
                 console.log(online);
-			} else {
+            } else {
                 //Multiple connection detected
                 server.to(online[auth]).emit('forced logout');
                 socket.emit('forced logout');
-				console.log(online);
-				socket.disconnect();
-			}
-		} else {
+                console.log(online);
+                socket.disconnect();
+            }
+        } else {
             //New connection
-			online[auth] = socket.id;
-			console.log(online);
-		}
-	}
+            online[auth] = socket.id;
+            console.log(online);
+        }
+    }
 
     //User validation and update online list
     socket.on('login', form => {
@@ -114,6 +114,17 @@ server.on('connection', socket => {
             delete online[auth];
             console.log(online);
             socket.disconnect();
+        }
+    })
+    socket.on('disconnect', () => {
+        if (auth != null) {
+            for (let auth in online) {
+                if (online[auth] === socket.id) {
+                    delete online[auth];
+                    break;
+                }
+            }
+            console.log(online);
         }
     })
 
