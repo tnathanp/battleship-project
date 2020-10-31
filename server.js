@@ -37,28 +37,19 @@ app.get('/requestPic', (req, res) => {
 
 server.on('connection', socket => {
 
-    //Handling multiple connection
+    //Showing connection
     let auth = socket.handshake.query.auth;
     if (auth != null && auth != 'null') {
         let sockets = server.sockets.sockets;
-        let count = 0;
+        console.log('Current online list');
         for (let id in sockets) {
-            if (sockets[id]['handshake']['query']['auth'] === auth) count += 1;
-        }
-        if (count >= 2) {
-            //Multiple connection detected
-            //server.to(sockets[id]).emit('forced logout');
-            socket.emit('forced logout');
-        } else {
-            console.log('Current online list');
-            for (let id in sockets) {
+            if(sockets[id]['handshake']['query']['auth'] != null)
                 console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
-            }
-            console.log('\n');
         }
+        console.log('\n');
     }
 
-    //User validation and update online list
+    //User validation
     socket.on('login', form => {
         MongoClient.connect(uri, function (err, db) {
             if (err) throw err;
@@ -70,8 +61,6 @@ server.on('connection', socket => {
                     if (result.user === form.user && result.pass === form.pass) {
                         let currentAuthKey = result.auth;
                         conn.updateOne({ user: form.user }, { $set: { profile: form.profile } }, function (err, result) {
-                            //online[currentAuthKey] = socket.id;
-                            //console.log(online);
                             socket.emit('success login', currentAuthKey);
                         })
                     }
@@ -95,8 +84,6 @@ server.on('connection', socket => {
 
                     conn.insertOne(payload, function (err, result) {
                         if (err) throw err;
-                        //online[newAuthKey] = socket.id;
-                        //console.log(online);
                         socket.emit('success login', newAuthKey);
                     })
                 }
@@ -106,7 +93,7 @@ server.on('connection', socket => {
 
     });
 
-    //Connection close and update online list
+    //Connection close
     socket.on('offline', auth => {
         socket.disconnect();
     })
@@ -114,7 +101,8 @@ server.on('connection', socket => {
         let sockets = server.sockets.sockets;
         console.log('Current online list');
         for (let id in sockets) {
-            console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
+            if(sockets[id]['handshake']['query']['auth'] != null)
+                console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
         }
         console.log('\n');
     })
