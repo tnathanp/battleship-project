@@ -1,6 +1,6 @@
 let app = require('express')();
 let http = require('http').createServer(app);
-let server = require('socket.io')(http, {'pingInterval': 2000, 'pingTimeout': 5000});
+let server = require('socket.io')(http);
 let uuid = require('uuid');
 
 const MongoClient = require('mongodb').MongoClient;
@@ -35,28 +35,26 @@ app.get('/requestPic', (req, res) => {
     })
 })
 
-let online = {};
-
 server.on('connection', socket => {
 
     //Handling multiple connection
     let auth = socket.handshake.query.auth;
     if (auth != null && auth != 'null') {
-        if (auth in online) {
-            if (online[auth] === socket.id) {
-                //Same connection
-                console.log(online);
-            } else {
-                //Multiple connection detected
-                server.to(online[auth]).emit('forced logout');
-                socket.emit('forced logout');
-                console.log(online);
-                socket.disconnect();
-            }
+        let sockets = server.sockets.sockets;
+        let count = 0;
+        for (let id in sockets) {
+            if (sockets[id]['handshake']['query']['auth'] === auth) count += 1;
+        }
+        if (count >= 2) {
+            //Multiple connection detected
+            //server.to(sockets[id]).emit('forced logout');
+            socket.emit('forced logout');
         } else {
-            //New connection
-            online[auth] = socket.id;
-            console.log(online);
+            console.log('Current online list');
+            for (let id in sockets) {
+                console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
+            }
+            console.log('\n');
         }
     }
 
@@ -72,8 +70,8 @@ server.on('connection', socket => {
                     if (result.user === form.user && result.pass === form.pass) {
                         let currentAuthKey = result.auth;
                         conn.updateOne({ user: form.user }, { $set: { profile: form.profile } }, function (err, result) {
-                            online[currentAuthKey] = socket.id;
-                            console.log(online);
+                            //online[currentAuthKey] = socket.id;
+                            //console.log(online);
                             socket.emit('success login', currentAuthKey);
                         })
                     }
@@ -97,8 +95,8 @@ server.on('connection', socket => {
 
                     conn.insertOne(payload, function (err, result) {
                         if (err) throw err;
-                        online[newAuthKey] = socket.id;
-                        console.log(online);
+                        //online[newAuthKey] = socket.id;
+                        //console.log(online);
                         socket.emit('success login', newAuthKey);
                     })
                 }
@@ -110,21 +108,15 @@ server.on('connection', socket => {
 
     //Connection close and update online list
     socket.on('offline', auth => {
-        if (auth != null) {
-            delete online[auth];
-            console.log(online);
-            socket.disconnect();
-        }
+        socket.disconnect();
     })
     socket.on('disconnect', () => {
-        console.log('fired');
-        for (let auth in online) {
-            if (online[auth] === socket.id) {
-                delete online[auth];
-                break;
-            }
+        let sockets = server.sockets.sockets;
+        console.log('Current online list');
+        for (let id in sockets) {
+            console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
         }
-        console.log(online);
+        console.log('\n');
     })
 
     socket.on('req profile pic', auth => {
