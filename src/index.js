@@ -4,32 +4,9 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-class Main extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      disconnect: false
-    }
-  }
-
-  componentDidMount() {
-    window.addEventListener('beforeunload', () => {
-      this.setState({ disconnect: true });
-    })
-  }
-
-  render() {
-    if(this.state.disconnect){
-      return false;
-    }else{
-      return (<App />)
-    }
-  }
-}
-
 ReactDOM.render(
   <React.StrictMode>
-    <Main />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
