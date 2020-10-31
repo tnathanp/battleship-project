@@ -117,15 +117,14 @@ server.on('connection', socket => {
         }
     })
     socket.on('disconnect', () => {
-        if (auth != null) {
-            for (let auth in online) {
-                if (online[auth] === socket.id) {
-                    delete online[auth];
-                    break;
-                }
+        console.log('fired');
+        for (let auth in online) {
+            if (online[auth] === socket.id) {
+                delete online[auth];
+                break;
             }
-            console.log(online);
         }
+        console.log(online);
     })
 
     socket.on('req profile pic', auth => {
