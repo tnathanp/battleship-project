@@ -24,6 +24,7 @@ const backgroundChoices=[
 class Menu extends React.Component {
     constructor(props) {
         super(props);
+        this.changeProfile = this.changeProfile.bind(this);
         this.state = {
             redirect: {
                 lobby: false,
@@ -43,6 +44,7 @@ class Menu extends React.Component {
                     glasses: 0
                 }
             },
+            isRefreshModal: false,
             showDropDown: false,
             showProfileSetting: false,
             showProfileChoice: false,
@@ -92,11 +94,24 @@ class Menu extends React.Component {
     }
 
     changeProfile(url) {
+        this.setState({
+            isRefreshModal: true
+        })
         let data = {
             auth: localStorage.getItem('auth'),
             url: url
         }
         socket.emit('change profile', data);
+        Swal.fire({
+            title: 'Loading',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        })
+        this.showProfileChoice();
+        this.showProfileSetting();
     }
 
     showSongSetting() {
@@ -150,11 +165,15 @@ class Menu extends React.Component {
                     }
                 }
             })
+            if (this.state.isRefreshModal === true) {
+                Swal.close();
+                this.showProfileSetting();
+                this.setState({ isRefreshModal: false });
+            }
         })
 
         socket.on('success change profile', () => {
-            socket.emit('request user data');
-            this.showProfileChoice();
+            socket.emit('request user data', localStorage.getItem('auth'));
         })
     }
 
