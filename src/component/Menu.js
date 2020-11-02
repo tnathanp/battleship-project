@@ -9,6 +9,8 @@ import { AiFillTrophy } from 'react-icons/ai';
 import { FiSettings } from 'react-icons/fi';
 import { HiHome } from 'react-icons/hi';
 import { MdExitToApp } from 'react-icons/md';
+import { BiGlasses } from 'react-icons/bi'
+import { IoIosRocket} from 'react-icons/io'
 import './Menu.css';
 
 class Menu extends React.Component {
@@ -91,15 +93,20 @@ class Menu extends React.Component {
                         <Card style={{ width: '15rem' }}>
                             <Card.Img variant="top" src={this.state.currentProfilePic} />
                             <Card.Body>
-                                <Card.Title>ชื่อ...</Card.Title>
-                                <Button variant="secondary">Edit</Button>
+                            <Row className="justify-content-md-center">
+                                <Card.Title>ชื่อ...</Card.Title> </Row>
+                            <Row className="justify-content-md-center">
+                                <Card.Text><IoIosRocket/>+จน.     <BiGlasses/>+จน.</Card.Text> </Row>
                             </Card.Body>
                         </Card>
                     </Row>
                 </Modal.Body>
                 <Modal.Footer>
+                <Row className="justify-content-md-center">
+                    <Button variant="primary">Change picture</Button>   
+                     </Row>  
+                  
                     <Button variant="secondary" onClick={() => this.showProfileSetting()}>Close</Button>
-                    <Button variant="primary">Save Changes</Button>
                 </Modal.Footer>
             </Modal>
         );
