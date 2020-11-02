@@ -3,6 +3,7 @@ let http = require('http').createServer(app);
 let server = require('socket.io')(http);
 let uuid = require('uuid');
 
+
 const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb+srv://battleshipproject:WXfFWQBKEIj1xIeM@cluster.83va3.mongodb.net/battleship-project?retryWrites=true&w=majority";
 
@@ -35,6 +36,8 @@ app.get('/requestPic', (req, res) => {
     })
 })
 
+let roomList = [];
+
 server.on('connection', socket => {
 
     //Showing connection
@@ -43,7 +46,7 @@ server.on('connection', socket => {
         let sockets = server.sockets.sockets;
         console.log('Current online list');
         for (let id in sockets) {
-            if(sockets[id]['handshake']['query']['auth'] != null)
+            if (sockets[id]['handshake']['query']['auth'] != null)
                 console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
         }
         console.log('\n');
@@ -93,6 +96,18 @@ server.on('connection', socket => {
 
     });
 
+    socket.on('change profile', data => {
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+
+            conn.updateOne({ auth: data.auth }, { $set: { profile: data.url } }, function (err, result) {
+                socket.emit('success change profile', currentAuthKey);
+                db.close()
+            })
+        })
+    })
+
     //Connection close
     socket.on('offline', auth => {
         socket.disconnect();
@@ -101,13 +116,23 @@ server.on('connection', socket => {
         let sockets = server.sockets.sockets;
         console.log('Current online list');
         for (let id in sockets) {
-            if(sockets[id]['handshake']['query']['auth'] != null)
+            if (sockets[id]['handshake']['query']['auth'] != null)
                 console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
         }
         console.log('\n');
+        //then the client auto leave room, so we have to remove room from the list
+
+        if (roomList.length !== 0) for (let i = 0; i <= roomList.length; i++) {
+            if (roomList[i]['socketID'] === socket.id) {
+                roomList.splice(i, 1);
+                server.emit('update room list', roomList);
+                break;
+            }
+        }
+        server.emit('update room list', roomList);
     })
 
-    socket.on('req profile pic', auth => {
+    socket.on('request user data', auth => {
         if (auth != null) {
             MongoClient.connect(uri, function (err, db) {
                 if (err) throw err;
@@ -115,10 +140,136 @@ server.on('connection', socket => {
 
                 conn.findOne({ auth: auth }, function (err, result) {
                     if (err) throw err;
-                    socket.emit('res profile pic', result.profile);
+                    let data = {
+                        user: result.user,
+                        profile: result.profile,
+                        items: {
+                            missile: result.items.missile,
+                            glasses: result.items.glasses
+                        }
+                    }
+                    socket.emit('response user data', data);
                     db.close();
                 })
             })
         }
     })
+
+    socket.on('joine invitation', room => {
+        if (server.sockets.adapter.rooms[room] != null) {
+            if (server.sockets.adapter.rooms[room].length === 1) {
+                socket.join(room);
+                socket.to(room).broadcast.emit('join invitation success')
+            } else {
+                socket.to(room).broadcast.emit('join invitation fail')
+            }
+        }
+    })
+
+    socket.on('request friend id', friendID => {
+        let findFriendID = ''
+
+        if (friendID != null) {
+            MongoClient.connect(uri, function (err, db) {
+                if (err) throw err;
+                let conn = db.db("battleship-project").collection("user");
+
+                conn.findOne({ user: friendID }, function (err, result) {
+                    if (err) throw err;
+
+                    if (result == null) {
+                        socket.emit('frind id not found');
+                    } else {
+                        //console.log('find result' + ' ' + result.auth);
+                        let sockets = server.sockets.sockets;
+                        for (let id in sockets) {
+                            //console.log(id + ' ' + result.auth);
+                            if (sockets[id]['handshake']['query']['auth'] != null) {
+                                if (sockets[id]['handshake']['query']['auth'] === result.auth) {
+                                    findFriendID = id;
+                                    break;
+                                }
+                            }
+                        }
+
+                        //console.log('find friend id leaw ja ' + findFriendID);
+                        roomname = String(socket.id + findFriendID)
+                        socket.join(roomname)
+
+                        //console.log('room name sent ' + roomname);
+                        server.to(findFriendID).emit('receive invitation', roomname)
+                    }
+                    db.close();
+                })
+            })
+        }
+    })
+
+    socket.on('create room', id => {
+
+        if (roomList.length === 0) {
+            let data = {
+                socketID: socket.id,
+                roomID: id
+            }
+            roomList.push(data);
+            socket.join(id);
+            socket.emit('success create room', id);
+            server.emit('update room list', roomList);
+
+        } else {
+            for (let each of roomList) {
+                if (each['roomID'] === id) {
+                    socket.emit('room id already exist');
+                    break;
+                } else {
+                    let data = {
+                        socketID: socket.id,
+                        roomID: id
+                    }
+                    roomList.push(data);
+                    socket.join(id);
+                    socket.emit('success create room', id);
+                    server.emit('update room list', roomList);
+                    break;
+                }
+            }
+        }
+        console.log('\n current room list');
+        console.log(roomList);
+    })
+
+    socket.on('get room list', () => {
+        socket.emit('update room list', roomList);
+    })
+
+    socket.on('join room', id => {
+        if (server.sockets.adapter.rooms[id] != null) {
+            if (server.sockets.adapter.rooms[id].length === 1) {
+                socket.join(id);
+                //remove the room from room list as i can support only 2 people
+                for (let i = 0; i <= roomList.length; i++) {
+                    if (roomList[i]['roomID'] === id) {
+                        roomList.splice(i, 1);
+                        server.emit('update room list', roomList);
+                        break;
+                    }
+                }
+
+                //test emitting to the room
+                server.to(id).emit('start the game');
+                console.log('\n current room list');
+                console.log(roomList);
+            } else {
+                console.log('player exceed')
+            }
+        } else {
+            console.log('erro rom not exist');
+        }
+    })
+
+    socket.on('send msg to same room', data => {
+        socket.broadcast.to(data.roomID).emit('msg rcv', data.msg);
+    })
+
 });
