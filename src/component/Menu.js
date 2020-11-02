@@ -85,7 +85,6 @@ class Menu extends React.Component {
     }
 
     changeBackground(color) {
-        socket.emit('store color', color);
         document.body.style.backgroundImage = color;
     }
 
@@ -259,10 +258,6 @@ class Menu extends React.Component {
                         })}
                     </Card.Text></Card.Body></Card></Col></Row></Container>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => this.showBackgroundSetting()}>Close</Button>
-                    <Button variant="primary">Save Changes</Button>
-                </Modal.Footer>
             </Modal>
         );
 
