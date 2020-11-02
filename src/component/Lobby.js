@@ -13,13 +13,14 @@ class Lobby extends React.Component {
             roomList: [],
             friendID: '',
             roomID: '',
+            joinedRoomID: '',
             showInviteFriend: false,
             showCreateRoom: false
         }
     }
 
-    modalControl(_type, action) {
-        switch (_type) {
+    modalControl(t, action) {
+        switch (t) {
             case 'if':
                 this.setState({ showInviteFriend: action });
                 break;
@@ -35,15 +36,22 @@ class Lobby extends React.Component {
         })
     }
 
-    handleRoomID(e){
+    handleRoomID(e) {
         this.setState({
             roomID: e.target.value
         })
     }
 
     createRoom() {
-        //send roomID,username data to server
-        //start game
+        this.modalControl('cr', false);
+        socket.emit('create room', this.state.roomID);
+    }
+
+    joinRoom(id) {
+        socket.emit('join room', id);
+        this.setState({
+            joinedRoomID: id
+        })
     }
 
     invite() {
@@ -51,27 +59,47 @@ class Lobby extends React.Component {
     }
 
     refresh() {
-        //get new list from server
-        let list = []
-        for (let i = 0; i < 5; i++) {
-            list.push(Math.floor(Math.random() * 101))
-        }
-        this.setState({
-            roomList: list
-        })
-    }
-
-    roomSelected(roomNum) {
-        //send selected room number to server
-        //start game
+        socket.emit('get room list');
     }
 
     componentDidMount() {
-        //get list from server
-        let list = [1, 2, 3, 4, 5]
-        this.setState({
-            roomList: list
+        socket.emit('get room list');
+
+        socket.on('success create room', id => {
+            this.setState({
+                joinedRoomID: id
+            })
+            Swal.fire({
+                title: 'Waiting for the opponent',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            })
         })
+
+        socket.on('room id already exist', () => {
+            Swal.fire({
+                title: 'Room name already exists',
+                icon: 'error'
+            })
+        })
+
+        socket.on('update room list', data => {
+            this.setState({
+                roomList: data
+            })
+        })
+
+        socket.on('start the game', () => {
+            Swal.close();
+            Swal.fire({
+                title: 'Game start gooooooooooo',
+                icon: 'success'
+            })
+        })
+
     }
 
     render() {
@@ -90,7 +118,7 @@ class Lobby extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => this.modalControl('if', false)}>Close</Button>
-                    <Button variant="primary" onClick={() => this.invite(this.state.friendID)}>Send Invitation</Button>
+                    <Button variant="primary" onClick={() => this.invite()}>Send Invitation</Button>
                 </Modal.Footer>
             </Modal>
         );
@@ -101,14 +129,14 @@ class Lobby extends React.Component {
                 <Modal.Body>
                     <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>
                         <Form>
-                        Room name
+                            Room name
                         <Form.Control onChange={e => this.handleRoomID(e)} placeholder="Enter room name" />
                         </Form>
                     </Card.Text></Card.Body></Card.Header></Card></Col></Row></Container>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => this.modalControl('cr', false)}>Close</Button>
-                    <Button variant="primary" onClick={() => this.createRoom(this.state.roomID)}>Create</Button>
+                    <Button variant="primary" onClick={() => this.createRoom()}>Create</Button>
                 </Modal.Footer>
             </Modal>
         );
@@ -124,8 +152,9 @@ class Lobby extends React.Component {
                             </Card.Header>
                             <Card.Body>
                                 <Card.Text>
+                                    <Button onClick={() => this.test()}>test emit to client in same room</Button>
                                     {this.state.roomList.map(each => (
-                                        <Card.Link onClick={() => this.roomSelected(each)}><p>{each}</p></Card.Link>)
+                                        <Card.Link onClick={() => this.joinRoom(each.roomID)}><p>{each.roomID}</p></Card.Link>)
                                     )}
                                 </Card.Text>
                             </Card.Body>
