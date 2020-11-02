@@ -178,7 +178,7 @@ server.on('connection', socket => {
                     if (err) throw err;
 
                     if (result == null) {
-                        socket.emit('frind id not found');
+                        socket.emit('friend id not found');
                     } else {
                         //console.log('find result' + ' ' + result.auth);
                         let sockets = server.sockets.sockets;
