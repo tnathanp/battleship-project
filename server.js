@@ -193,7 +193,7 @@ server.on('connection', socket => {
                         }
 
                         //console.log('find friend id leaw ja ' + findFriendID);
-                        roomname = String(socket.id + findFriendID)
+                        let roomname = String(socket.id + findFriendID)
                         socket.join(roomname)
 
                         //console.log('room name sent ' + roomname);
