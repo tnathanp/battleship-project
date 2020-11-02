@@ -95,7 +95,7 @@ class Lobby extends React.Component {
                 text: "Join success"
             })
         })
-        
+
         socket.on('join invitation fail', () => {
             Swal.fire({
                 icon: 'error',
@@ -182,11 +182,11 @@ class Lobby extends React.Component {
                                 Room List
                                 <Button className="float-right" variant="warning" size="sm" onClick={() => this.refresh()}><BsArrowClockwise style={{ marginRight: '3px' }} /> refresh</Button>
                             </Card.Header>
-                            <Card.Body>
+                            <Card.Body class="text-center">
                                 <Card.Text>
-                                    <Button onClick={() => this.test()}>test emit to client in same room</Button>
+                                    {this.state.roomList.length === 0 ? (<Card.Text style={{marginTop: '20px', marginBottom: '20px'}}>No available room</Card.Text>) : false}
                                     {this.state.roomList.map(each => (
-                                        <Card.Link onClick={() => this.joinRoom(each.roomID)}><p>{each.roomID}</p></Card.Link>)
+                                        <Button block variant="light" onClick={() => this.joinRoom(each.roomID)}>{each.roomID}</Button>)
                                     )}
                                 </Card.Text>
                             </Card.Body>
