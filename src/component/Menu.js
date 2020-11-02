@@ -1,7 +1,7 @@
 import React from 'react';
 import socket from '../connection';
 import Swal from 'sweetalert2';
-import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row } from 'react-bootstrap';
+import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row, Col, Container } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { RiShoppingCart2Fill, RiShipLine } from 'react-icons/ri';
@@ -9,8 +9,9 @@ import { AiFillTrophy } from 'react-icons/ai';
 import { FiSettings } from 'react-icons/fi';
 import { HiHome } from 'react-icons/hi';
 import { MdExitToApp } from 'react-icons/md';
-import { BiGlasses } from 'react-icons/bi'
-import { IoIosRocket} from 'react-icons/io'
+import { BiGlasses } from 'react-icons/bi';
+import { IoIosRocket } from 'react-icons/io';
+import ProfileChoice from './ProfileChoice';
 import './Menu.css';
 
 class Menu extends React.Component {
@@ -22,9 +23,24 @@ class Menu extends React.Component {
                 shop: false,
                 rank: false
             },
-            currentProfilePic: '',
+            audio: [
+                new Audio('/Pirates Of The Caribbean Theme Song.mp3'),
+                new Audio('/Coffin Dance (Official Music Video HD).mp3'),
+                new Audio('/Pink Panther Theme Song.mp3')
+            ],
+            user: {
+                name: '',
+                profile: '',
+                items: {
+                    missile: 0,
+                    glasses: 0
+                }
+            },
             showDropDown: false,
-            showProfileSetting: false
+            showProfileSetting: false,
+            showProfileChoice: false,
+            showSongSetting: false,
+            showBackgroundSetting: false
         }
     }
 
@@ -39,11 +55,13 @@ class Menu extends React.Component {
     }
 
     handleDropDown() {
-        if (this.state.showProfileSetting === true) {
+        if (this.state.showProfileSetting === true ||
+            this.state.showSongSetting === true ||
+            this.state.showBackgroundSetting === true) {
             return false
         }
 
-        socket.emit('req profile pic', localStorage.getItem('auth'));
+        socket.emit('request user data', localStorage.getItem('auth'));
 
         this.setState({ showDropDown: !this.state.showDropDown })
     }
@@ -52,8 +70,36 @@ class Menu extends React.Component {
         this.setState({ showProfileSetting: !this.state.showProfileSetting });
     }
 
-    changeProfile() {
-        //socket emit change profile
+    showProfileChoice() {
+        this.setState({ showProfileChoice: !this.state.showProfileChoice });
+    }
+
+    changeProfile(url) {
+        let data = {
+            auth: localStorage.getItem('auth'),
+            url: url
+        }
+        socket.emit('change profile', data);
+    }
+
+    showSongSetting() {
+        this.setState({ showSongSetting: !this.state.showSongSetting });
+    }
+
+    showBackgroundSetting() {
+        this.setState({ showBackgroundSetting: !this.state.showBackgroundSetting });
+    }
+
+    controlSong(n) {
+        let aud = this.state.audio;
+        for (let i = 0; i < aud.length; i++) {
+            aud[i].pause();
+            aud[i].currentTime = 0;
+            if (i === n) {
+                aud[i].play();
+                aud[i].loop = true;
+            }
+        }
     }
 
     logout() {
@@ -76,14 +122,37 @@ class Menu extends React.Component {
     }
 
     componentDidMount() {
-        socket.on('res profile pic', url => {
+        socket.on('response user data', data => {
             this.setState({
-                currentProfilePic: url
+                user: {
+                    name: data.user,
+                    profile: data.profile,
+                    items: {
+                        missile: data.items.missile,
+                        glasses: data.items.glasses
+                    }
+                }
             })
+        })
+
+        socket.on('success change profile', () => {
+            socket.emit('request user data');
+            this.showProfileChoice();
         })
     }
 
     render() {
+
+        const modalProfileChoice = (
+            <Modal centered size="lg" show="true" backdrop="static">
+                <Modal.Header><Modal.Title>Choose Profile Picture</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>
+                        <ProfileChoice currentPic={this.changeProfile} />
+                    </Card.Text></Card.Body></Card.Header></Card></Col></Row></Container>
+                </Modal.Body>
+            </Modal>
+        );
 
         const modalProfileSetting = (
             <Modal centered size="sm" show="true" backdrop="static">
@@ -91,23 +160,59 @@ class Menu extends React.Component {
                 <Modal.Body>
                     <Row className="justify-content-md-center">
                         <Card style={{ width: '15rem' }}>
-                            <Card.Img variant="top" src={this.state.currentProfilePic} />
+                            <Card.Img variant="top" src={this.state.user.profile} />
                             <Card.Body>
-                            <Row className="justify-content-md-center">
-                                <Card.Title>ชื่อ...</Card.Title> </Row>
-                            <Row className="justify-content-md-center">
-                                <Card.Text><IoIosRocket/>+จน.     <BiGlasses/>+จน.</Card.Text> </Row>
+                                <Row className="justify-content-md-center">
+                                    <Card.Title>{this.state.user.name}</Card.Title>
+                                </Row>
+                                <Card>
+                                    <Card.Header>
+                                        <Row className="justify-content-md-center">
+                                            <Card.Title>Inventory</Card.Title>
+                                        </Row>
+                                        <Row className="justify-content-md-center">
+                                            <Col>
+                                                <IoIosRocket /> : {this.state.user.items.missile}
+                                            </Col>
+                                            <Col>
+                                                <BiGlasses /> : {this.state.user.items.glasses}
+                                            </Col>
+                                        </Row>
+                                    </Card.Header>
+                                </Card>
                             </Card.Body>
                         </Card>
                     </Row>
                 </Modal.Body>
                 <Modal.Footer>
-                <Row className="justify-content-md-center">
-                    <Button variant="primary">Change picture</Button>   
-                     </Row>  
-                  
+                    <Button variant="primary" onClick={() => this.showProfileChoice()}>Change picture</Button>
                     <Button variant="secondary" onClick={() => this.showProfileSetting()}>Close</Button>
                 </Modal.Footer>
+            </Modal>
+        );
+
+        const modalSongSetting = (
+            <Modal centered size="sm" show="true" backdrop="static" onHide={() => this.showSongSetting()}>
+                <Modal.Header closeButton><Modal.Title>Song Setting</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <Container><Row><Col><Card><Card.Body><Card.Text>
+                        <Button variant="light" onClick={() => this.controlSong(0)} block>Agressive</Button>
+                        <Button variant="light" onClick={() => this.controlSong(1)} block>Dance</Button>
+                        <Button variant="light" onClick={() => this.controlSong(2)} block>Mystery</Button>
+                        <Button variant="dark" onClick={() => this.controlSong(3)} block>Tun Off</Button>
+                    </Card.Text></Card.Body></Card></Col></Row></Container>
+                </Modal.Body>
+            </Modal>
+        );
+
+        const modalBackgroundSetting = (
+            <Modal centered size="sm" show="true" backdrop="static">
+                <Modal.Header><Modal.Title>Background Setting</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <Container><Row><Col><Card><Card.Body><Card.Text>
+                        WIP
+                    </Card.Text></Card.Body></Card></Col></Row></Container>
+                </Modal.Body>
             </Modal>
         );
 
@@ -147,8 +252,11 @@ class Menu extends React.Component {
                         >
                             <NavDropdown.Item onClick={() => this.showProfileSetting()}>Profile</NavDropdown.Item>
                             {this.state.showProfileSetting && modalProfileSetting}
-                            <NavDropdown.Item onClick={() => this.hello()}>Background</NavDropdown.Item>
-                            <NavDropdown.Item onClick={() => this.hello()}>Song</NavDropdown.Item>
+                            {this.state.showProfileChoice && modalProfileChoice}
+                            <NavDropdown.Item onClick={() => this.showBackgroundSetting()}>Background</NavDropdown.Item>
+                            {this.state.showBackgroundSetting && modalBackgroundSetting}
+                            <NavDropdown.Item onClick={() => this.showSongSetting()}>Song</NavDropdown.Item>
+                            {this.state.showSongSetting && modalSongSetting}
                             <NavDropdown.Item onClick={() => this.logout()}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <MdExitToApp style={{ marginRight: '5px' }} />Logout
