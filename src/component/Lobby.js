@@ -55,7 +55,7 @@ class Lobby extends React.Component {
     }
 
     invite() {
-        //send invitation to server
+        socket.emit('request friend id', this.state.friendID);
     }
 
     refresh() {
@@ -76,6 +76,38 @@ class Lobby extends React.Component {
                 willOpen: () => {
                     Swal.showLoading();
                 }
+            })
+        })
+
+        socket.on('receive invitation', room => {
+            this.setState({
+                joinedRoomID: room
+            });
+            Swal.fire({
+                text: 'You are invited to join a room'
+            });
+            socket.emit('join invitation', room);
+        })
+
+        socket.on('join inivitation success', () => {
+            Swal.fire({
+                icon: 'success',
+                text: "Join success"
+            })
+        })
+        
+        socket.on('join invitation fail', () => {
+            Swal.fire({
+                icon: 'error',
+                text: "Join fail"
+            })
+        })
+
+        socket.on('friend id not found', () => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops',
+                text: "friend's ID not found"
             })
         })
 

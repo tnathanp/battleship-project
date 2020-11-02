@@ -42,6 +42,7 @@ class Login extends React.Component {
     } else {
       Swal.fire({
         title: 'Loading',
+        allowOutsideClick: false,
         willOpen: () => {
           Swal.showLoading()
         }
