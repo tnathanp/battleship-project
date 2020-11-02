@@ -33,6 +33,57 @@ class App extends React.Component {
   startGame() {
     this.setState({ isInGame: true });
   }
+<<<<<<< HEAD
+=======
+
+  componentDidMount() {
+    //ask server
+    document.body.style.backgroundImage=("linear-gradient(43deg, #4158D0 0%, #C850C0 51%, #FFCC70 100%");
+}
+  
+  audio1 = new Audio("/Pirates Of The Caribbean Theme Song.mp3");
+  audio2 = new Audio("/Coffin Dance (Official Music Video HD).mp3");
+  audio3 = new Audio("/Pink Panther Theme Song.mp3");
+
+  controlSong(x) {
+    if (x === 1) {
+      this.audio1.pause();
+      this.audio1.currentTime = 0;
+      this.audio2.pause();
+      this.audio2.currentTime = 0;
+      this.audio3.pause();
+      this.audio3.currentTime = 0;
+      this.audio1.play();
+      this.audio1.loop = true;
+    } else if (x === 2) {
+      this.audio1.pause();
+      this.audio1.currentTime = 0;
+      this.audio2.pause();
+      this.audio2.currentTime = 0;
+      this.audio3.pause();
+      this.audio3.currentTime = 0;
+      this.audio2.play();
+      this.audio2.loop = true;
+    } else if (x === 3) {
+      this.audio1.pause();
+      this.audio1.currentTime = 0;
+      this.audio2.pause();
+      this.audio2.currentTime = 0;
+      this.audio3.pause();
+      this.audio3.currentTime = 0;
+      this.audio3.play();
+      this.audio3.loop = true;
+    } else {
+      this.audio1.pause();
+      this.audio1.currentTime = 0;
+      this.audio2.pause();
+      this.audio2.currentTime = 0;
+      this.audio3.pause();
+      this.audio3.currentTime = 0;
+    }
+  }
+
+>>>>>>> Add background setting
 
   render() {
     return (
