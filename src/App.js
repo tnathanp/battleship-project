@@ -17,7 +17,9 @@ class App extends React.Component {
     super(props);
     this.logged = this.logged.bind(this);
     this.state = {
-      isInGame: false
+      isInGame: false,
+      isPlayingSong: false,
+      currentSong: 1
     }
   }
 
@@ -33,6 +35,49 @@ class App extends React.Component {
   startGame() {
     this.setState({ isInGame: true });
   }
+  
+  audio1 = new Audio("/Pirates Of The Caribbean Theme Song.mp3");
+  audio2 = new Audio("/Coffin Dance (Official Music Video HD).mp3");
+  audio3 = new Audio("/Pink Panther Theme Song.mp3");
+
+  controlSong(x) {
+    if (x === 1) {
+      this.audio1.pause();
+      this.audio1.currentTime = 0;
+      this.audio2.pause();
+      this.audio2.currentTime = 0;
+      this.audio3.pause();
+      this.audio3.currentTime = 0;
+      this.audio1.play();
+      this.audio1.loop = true;
+    } else if (x === 2) {
+      this.audio1.pause();
+      this.audio1.currentTime = 0;
+      this.audio2.pause();
+      this.audio2.currentTime = 0;
+      this.audio3.pause();
+      this.audio3.currentTime = 0;
+      this.audio2.play();
+      this.audio2.loop = true;
+    } else if (x === 3) {
+      this.audio1.pause();
+      this.audio1.currentTime = 0;
+      this.audio2.pause();
+      this.audio2.currentTime = 0;
+      this.audio3.pause();
+      this.audio3.currentTime = 0;
+      this.audio3.play();
+      this.audio3.loop = true;
+    } else {
+      this.audio1.pause();
+      this.audio1.currentTime = 0;
+      this.audio2.pause();
+      this.audio2.currentTime = 0;
+      this.audio3.pause();
+      this.audio3.currentTime = 0;
+    }
+  }
+
 
   render() {
     return (
@@ -42,6 +87,14 @@ class App extends React.Component {
             <Button onClick={() => this.startGame()}>Test start game</Button>
             {this.isAuthenticated() ? this.state.isInGame ? (<Game />) : (<Home />) : (<Login logged={this.logged} />)}
           </Row>
+          <Card>
+            <Card.Body>
+            <Button onClick={() =>  this.controlSong(1)} variant="outline-primary">Aggressive</Button>
+            <Button onClick={() =>  this.controlSong(2)} variant="outline-primary">Dance</Button>
+            <Button onClick={() =>  this.controlSong(3)} variant="outline-primary">Mystery</Button>
+            <Button onClick={() =>  this.controlSong(4)} variant="outline-primary">None</Button>
+            </Card.Body>
+          </Card>
         </Container>
       </Router>
     );
