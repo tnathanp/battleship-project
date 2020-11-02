@@ -64,7 +64,7 @@ server.on('connection', socket => {
                     if (result.user === form.user && result.pass === form.pass) {
                         let currentAuthKey = result.auth;
                         conn.updateOne({ user: form.user }, { $set: { profile: form.profile } }, function (err, result) {
-                            socket.emit('success login');
+                            socket.emit('success login', currentAuthKey);
                         })
                     }
                     else {
