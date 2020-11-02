@@ -64,7 +64,7 @@ server.on('connection', socket => {
                     if (result.user === form.user && result.pass === form.pass) {
                         let currentAuthKey = result.auth;
                         conn.updateOne({ user: form.user }, { $set: { profile: form.profile } }, function (err, result) {
-                            socket.emit('success login', currentAuthKey);
+                            socket.emit('success login');
                         })
                     }
                     else {
@@ -102,7 +102,7 @@ server.on('connection', socket => {
             let conn = db.db("battleship-project").collection("user");
 
             conn.updateOne({ auth: data.auth }, { $set: { profile: data.url } }, function (err, result) {
-                socket.emit('success change profile', currentAuthKey);
+                socket.emit('success change profile');
                 db.close()
             })
         })
