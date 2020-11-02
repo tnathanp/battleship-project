@@ -1,7 +1,7 @@
 import React from 'react';
 import socket from '../connection';
 import Swal from 'sweetalert2';
-import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row, Col, Container, ToggleButton } from 'react-bootstrap';
+import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row, Col, Container } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { RiShoppingCart2Fill, RiShipLine } from 'react-icons/ri';
