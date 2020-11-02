@@ -33,8 +33,6 @@ class App extends React.Component {
   startGame() {
     this.setState({ isInGame: true });
   }
-<<<<<<< HEAD
-=======
 
   componentDidMount() {
     //ask server
@@ -83,7 +81,6 @@ class App extends React.Component {
     }
   }
 
->>>>>>> Add background setting
 
   render() {
     return (
