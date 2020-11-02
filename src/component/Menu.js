@@ -14,11 +14,11 @@ import { IoIosRocket } from 'react-icons/io';
 import ProfileChoice from './ProfileChoice';
 import './Menu.css';
 
-const backgroundChoices=[
-    {color:'candy',code:'linear-gradient(43deg, #4158D0 0%, #C850C0 51%, #FFCC70 100%)'},
-    {color:'serenity & rose quartz', code:'linear-gradient(0deg, #f7cac9 0%, #b3cee5 100%)'},
-    {color:'midnight',code:'linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)'},
-    {color:'nature',code:'linear-gradient(132deg, #F4D03F 0%, #16A085 100%)'}
+const backgroundChoices = [
+    { color: 'Serenity & Rose quartz', code: 'linear-gradient(0deg, #f7cac9 0%, #b3cee5 100%)' },
+    { color: 'Candy', code: 'linear-gradient(43deg, #4158D0 0%, #C850C0 51%, #FFCC70 100%)' },
+    { color: 'Midnight', code: 'linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)' },
+    { color: 'Nature', code: 'linear-gradient(132deg, #F4D03F 0%, #16A085 100%)' }
 ];
 
 class Menu extends React.Component {
@@ -79,14 +79,14 @@ class Menu extends React.Component {
     showProfileSetting() {
         this.setState({ showProfileSetting: !this.state.showProfileSetting });
     }
-    
+
     showBackgroundSetting() {
         this.setState({ showBackgroundSetting: !this.state.showBackgroundSetting });
     }
 
     changeBackground(color) {
-        socket.emit('store color' , color);
-        document.body.style.backgroundImage=color;
+        socket.emit('store color', color);
+        document.body.style.backgroundImage = color;
     }
 
     showProfileChoice() {
@@ -120,6 +120,10 @@ class Menu extends React.Component {
 
     showBackgroundSetting() {
         this.setState({ showBackgroundSetting: !this.state.showBackgroundSetting });
+    }
+
+    changeBackground(color) {
+        document.body.style.backgroundImage = color;
     }
 
     controlSong(n) {
@@ -242,26 +246,18 @@ class Menu extends React.Component {
         );
 
         const modalBackgroundSetting = (
-            <Modal centered size="sm" show="true" backdrop="static">
-                <Modal.Header><Modal.Title>Choose Your Background Color</Modal.Title></Modal.Header>
+            <Modal centered size="sm" show="true" backdrop="static" onHide={() => this.showBackgroundSetting()}>
+                <Modal.Header closeButton><Modal.Title>Background Setting</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <Row className="justify-content-md-center">
-                        <Card style={{ width: '15rem' }}>
-                            <Card.Body>
-                            {backgroundChoices.map(backgroundChoice => {
-                                return(
-                                    <Row>
-                                        <ToggleButton type='radio' value={backgroundChoice.code}
-                                        onChange={() => this.changeBackground(backgroundChoice.code)}
-                                        >
-                                        {backgroundChoice.color}
-                                        </ToggleButton>
-                                    </Row>
-                                );
-                            })}
-                            </Card.Body>
-                        </Card>
-                    </Row>
+                    <Container><Row><Col><Card><Card.Body><Card.Text>
+                        {backgroundChoices.map(backgroundChoice => {
+                            return (
+                                <Button block variant="info" onClick={() => this.changeBackground(backgroundChoice.code)}>
+                                    {backgroundChoice.color}
+                                </Button>
+                            );
+                        })}
+                    </Card.Text></Card.Body></Card></Col></Row></Container>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => this.showBackgroundSetting()}>Close</Button>
