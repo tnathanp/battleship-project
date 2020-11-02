@@ -3,6 +3,7 @@ let http = require('http').createServer(app);
 let server = require('socket.io')(http);
 let uuid = require('uuid');
 
+
 const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb+srv://battleshipproject:WXfFWQBKEIj1xIeM@cluster.83va3.mongodb.net/battleship-project?retryWrites=true&w=majority";
 
@@ -35,6 +36,8 @@ app.get('/requestPic', (req, res) => {
     })
 })
 
+let roomname = ""
+ 
 server.on('connection', socket => {
 
     //Showing connection
@@ -121,4 +124,75 @@ server.on('connection', socket => {
             })
         }
     })
+
+    socket.on("test press ja",()=>{
+        server.to(roomname).emit('test')
+    })
+    
+
+    socket.on("ok join ka",room =>{
+        socket.join(room)
+        console.log(room)
+        if(server.sockets.adapter.rooms[room] != null){
+            if(server.sockets.adapter.rooms[room].length === 2){
+                socket.to(room).broadcast.emit('join success')
+            }else{
+                socket.to(room).broadcast.emit('join fail')
+            }
+        }
+    })
+
+    socket.on('req friend id', friendID => {
+        console.log(friendID);
+      
+        let findFriendID =  ''
+
+        
+        if (friendID != null) {
+            MongoClient.connect(uri, function (err, db) {
+               if (err) throw err;
+                let conn = db.db("battleship-project").collection("user");
+
+                conn.findOne({ user: friendID }, function (err, result) {
+                    if (err) throw err;
+                   
+                    if(result == null) {
+                        socket.emit('cant find id')}
+                         else{
+
+                            console.log('find result' + ' ' + result.auth);
+                    let sockets = server.sockets.sockets;
+                    for (let id in sockets) {
+                        console.log(id + ' ' + result.auth);
+                        if(sockets[id]['handshake']['query']['auth'] != null){
+                            if(sockets[id]['handshake']['query']['auth'] === result.auth){
+                                findFriendID = id
+                                break
+                            }  
+                           
+                        }
+
+                        
+                    }
+
+                    console.log('find friend id leaw ja '+ findFriendID);
+                    roomname = String(socket.id + findFriendID)
+                    socket.join(roomname)
+                   
+                    console.log('room name sent '+ roomname);
+                    server.to(findFriendID).emit('join room', roomname)
+
+                    }
+                    //socket.emit('res friend', result.user);
+                    //let sockets =;
+                    
+
+                     
+                    db.close();
+                })
+            })
+        }
+    })
+
+
 });
