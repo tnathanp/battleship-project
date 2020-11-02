@@ -1,7 +1,7 @@
 import React from 'react';
 import socket from '../connection';
 import Swal from 'sweetalert2';
-import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row, Col, Container } from 'react-bootstrap';
+import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row, Col, Container, ToggleButton } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { RiShoppingCart2Fill, RiShipLine } from 'react-icons/ri';
@@ -13,6 +13,13 @@ import { BiGlasses } from 'react-icons/bi';
 import { IoIosRocket } from 'react-icons/io';
 import ProfileChoice from './ProfileChoice';
 import './Menu.css';
+
+const backgroundChoices=[
+    {color:'candy',code:'linear-gradient(43deg, #4158D0 0%, #C850C0 51%, #FFCC70 100%)'},
+    {color:'serenity & rose quartz', code:'linear-gradient(0deg, #f7cac9 0%, #b3cee5 100%)'},
+    {color:'midnight',code:'linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)'},
+    {color:'nature',code:'linear-gradient(132deg, #F4D03F 0%, #16A085 100%)'}
+];
 
 class Menu extends React.Component {
     constructor(props) {
@@ -58,6 +65,7 @@ class Menu extends React.Component {
         if (this.state.showProfileSetting === true ||
             this.state.showSongSetting === true ||
             this.state.showBackgroundSetting === true) {
+
             return false
         }
 
@@ -68,6 +76,15 @@ class Menu extends React.Component {
 
     showProfileSetting() {
         this.setState({ showProfileSetting: !this.state.showProfileSetting });
+    }
+    
+    showBackgroundSetting() {
+        this.setState({ showBackgroundSetting: !this.state.showBackgroundSetting });
+    }
+
+    changeBackground(color) {
+        socket.emit('store color' , color);
+        document.body.style.backgroundImage=color;
     }
 
     showProfileChoice() {
@@ -207,12 +224,30 @@ class Menu extends React.Component {
 
         const modalBackgroundSetting = (
             <Modal centered size="sm" show="true" backdrop="static">
-                <Modal.Header><Modal.Title>Background Setting</Modal.Title></Modal.Header>
+                <Modal.Header><Modal.Title>Choose Your Background Color</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <Container><Row><Col><Card><Card.Body><Card.Text>
-                        WIP
-                    </Card.Text></Card.Body></Card></Col></Row></Container>
+                    <Row className="justify-content-md-center">
+                        <Card style={{ width: '15rem' }}>
+                            <Card.Body>
+                            {backgroundChoices.map(backgroundChoice => {
+                                return(
+                                    <Row>
+                                        <ToggleButton type='radio' value={backgroundChoice.code}
+                                        onChange={() => this.changeBackground(backgroundChoice.code)}
+                                        >
+                                        {backgroundChoice.color}
+                                        </ToggleButton>
+                                    </Row>
+                                );
+                            })}
+                            </Card.Body>
+                        </Card>
+                    </Row>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => this.showBackgroundSetting()}>Close</Button>
+                    <Button variant="primary">Save Changes</Button>
+                </Modal.Footer>
             </Modal>
         );
 
