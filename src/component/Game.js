@@ -13,7 +13,8 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: []
+            data: [],
+            seconds: 10
         }
     }
 
@@ -28,6 +29,21 @@ class Game extends React.Component {
         }
         return board;
     }
+
+    tick() {
+        this.setState(state => ({
+          seconds: state.seconds - 1
+        }));
+
+        if(this.state.seconds === 0){
+            clearInterval(this.interval)
+            Swal.fire({
+                text: 'Time out',
+                
+                
+            })
+        }
+      }
 
     render() {
         return (
@@ -57,22 +73,24 @@ class Game extends React.Component {
                                         {this.renderBoard().map(each => (<div className="board-row">{each}</div>))}
                                     </Col>
                                     <Col>
-                                        <Card style={{ width: '19rem' }}>
+                                        <Card style={{ width: '19rem',height: '268px' }}>
                                             <Card.Body>
                                                 <Card.Title>Items</Card.Title>
                                                 <Card.Subtitle className="mb-2 text-muted">Use them wisely na ka sis</Card.Subtitle>
                                                 <Card.Text>
 
                                                 </Card.Text>
-                                                <Card.Link href="#"><IoIosRocket />Five-shot Missile</Card.Link>
-                                                <Card.Link href="#"><BiGlasses />Glasses</Card.Link>
+                                                <Button><IoIosRocket style={{ marginRight: '5px' }} />Five-shot Missile</Button>
+                                                <Button><BiGlasses style={{ marginRight: '5px' }} />Glasses</Button>
+                                               
                                             </Card.Body>
                                         </Card>
                                     </Col>
                                 </Row>
                                 <Row>
-                                    <Col xs={8}>
-                                        <Card border="primary" style={{width: '30rem', marginTop:'10px'}}>
+
+                                    <Col>
+                                        <Card border="primary" style={{width: '40rem', marginTop:'10px',height: '160px'}}>
                                             <Card.Header>Chat</Card.Header>
                                             <Card.Body>
                                                 แชทๆๆๆๆ
@@ -85,12 +103,12 @@ class Game extends React.Component {
                                             </Card.Body>
                                         </Card>
                                     </Col>
-                                    <Col xs={4}>
-                                        <Card style={{ width: '20rem' }}>
+                                    <Col className= "text-center">
+                                        <Card   style={{ width: '19rem',marginTop: '10px',marginLeft: '60px',height: '160px' }}>
                                             <Card.Body>
                                                 <Card.Title>Time remaining</Card.Title>
-                                                <Card.Text>
-                                                   --------
+                                                <Card.Text style= {{ fontSize: '70px'}}>
+                                                  {this.state.seconds}
                                             </Card.Text>
                                                 
                                             </Card.Body>
@@ -106,6 +124,9 @@ class Game extends React.Component {
     }
 
     componentDidMount() {
+
+        this.interval = setInterval(() => this.tick(), 1000);
+        /*
         let timerInterval
         Swal.fire({
             title: 'Time remaining',
@@ -129,11 +150,11 @@ class Game extends React.Component {
                 clearInterval(timerInterval)
             }
         }).then((result) => {
-            /* Read more about handling dismissals below */
+            /* Read more about handling dismissals below 
             if (result.dismiss === Swal.DismissReason.timer) {
                 console.log('I was closed by the timer')
             }
-        })
+        })*/
     }
 }
 
