@@ -89,7 +89,7 @@ class Lobby extends React.Component {
             socket.emit('join invitation', room);
         })
 
-        socket.on('join inivitation success', () => {
+        socket.on('join invitation success', () => {
             Swal.fire({
                 icon: 'success',
                 text: "Join success"
