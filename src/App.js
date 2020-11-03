@@ -27,7 +27,7 @@ class App extends React.Component {
 
   logged(name) {
     Swal.fire("Hello, " + name);
-    this.forceUpdate();
+    window.location.reload(false)
   }
 
   startGame() {
