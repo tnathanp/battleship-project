@@ -22,13 +22,13 @@ class Shop extends React.Component {
                 text: "You don't have enough money"
             })
             return
-        }else{
-           
+        } else {
 
-            socket.emit('buy missile', {auth: localStorage.getItem('auth'), num: n})
+
+            socket.emit('buy missile', { auth: localStorage.getItem('auth'), num: n })
         }
-        
-        
+
+
     }
 
     glassesBuy(n) {
@@ -39,18 +39,18 @@ class Shop extends React.Component {
                 text: "You don't have enough money"
             })
             return
-        }else{
-           
-            socket.emit('buy glasses',{auth: localStorage.getItem('auth'), num: n})
-            
+        } else {
+
+            socket.emit('buy glasses', { auth: localStorage.getItem('auth'), num: n })
+
         }
-       
-        
+
+
     }
 
     componentDidMount() {
         socket.emit('get pocket');
-        socket.on('response pocket', data =>{
+        socket.on('response pocket', data => {
             this.setState({
                 pocket: data.pocket,
                 missileOwned: data.missile,
@@ -58,7 +58,7 @@ class Shop extends React.Component {
 
             })
         })
-        socket.on('response buy missile', data =>{
+        socket.on('response buy missile', data => {
             this.setState({
                 pocket: data.pocket,
                 missileOwned: data.missile
@@ -66,16 +66,13 @@ class Shop extends React.Component {
             })
         })
 
-        socket.on('response buy glasses', data =>{
+        socket.on('response buy glasses', data => {
             this.setState({
                 pocket: data.pocket,
                 glassesOwned: data.glasses
 
             })
         })
-       
-       
-
     }
 
     render() {
