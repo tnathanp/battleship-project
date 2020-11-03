@@ -282,4 +282,106 @@ server.on('connection', socket => {
         socket.broadcast.to(data.roomID).emit('msg rcv', data.msg);
     })
 
+    socket.on('get pocket',()=>{
+        
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+            let sockets = server.sockets.sockets;
+
+            conn.findOne({ auth: sockets[socket.id]['handshake']['query']['auth'] }, function (err, result) {
+                if (err) throw err;
+                socket.emit('response pocket', { pocket: result.pocket, missile: result.items.missile  ,glasses: result.items.glasses});
+                /*console.log('pocket & items sent')
+                console.log('result' + result)
+                console.log('pocket: ' + result.pocket)
+                console.log('missile: ' + result.items.missile)
+                console.log('glasses: ' + result.items.glasses)*/
+                db.close();
+            })
+       
+        })
+        
+    })
+
+    socket.on('buy glasses', data =>{
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+     
+            let pocketUpdate = 0
+            let glassesUpdate = 0
+            conn.findOne({ auth: data.auth }, function (err, result) {
+                if (err) throw err;
+                //console.log('pocket: ' + result.pocket)
+                //console.log('glasses: ' + result.items.glasses)
+                 
+                pocketUpdate = Number(result.pocket) - 50* Number(data.num)
+                glassesUpdate = Number(result.items.glasses) + Number(data.num)
+
+                //console.log('pocket: ' + pocketUpdate)
+                //console.log('glasses: ' + glassesUpdate)
+
+                conn.updateOne({ auth: data.auth }, { $set: { 
+                    pocket: pocketUpdate,
+                    items: {
+                        missile: result.items.missile,
+                        glasses: glassesUpdate
+                    }  
+                }}, function (err, result) {
+                    socket.emit('response buy glasses', { pocket: pocketUpdate  ,glasses: glassesUpdate});
+                   // console.log('done buying ja')
+                  
+                   
+                })
+                //console.log('pocket: ' +  result.pocket)
+                db.close();
+            })
+            
+       
+       
+        })
+    })
+
+    socket.on('buy missile', data =>{
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+     
+            let pocketUpdate = 0
+            let missileUpdate = 0
+            conn.findOne({ auth: data.auth }, function (err, result) {
+                if (err) throw err;
+                console.log('pocket: ' + result.pocket)
+                console.log('missile: ' + result.items.missile)
+                 
+                pocketUpdate = Number(result.pocket) - 100* Number(data.num)
+                missileUpdate = Number(result.items.missile) + Number(data.num)
+
+              //  console.log('pocket: ' + pocketUpdate)
+              //  console.log('missile: ' + missileUpdate)
+
+                conn.updateOne({ auth: data.auth }, { $set: { 
+                    pocket: pocketUpdate,
+                    items: {
+                        missile: missileUpdate,
+                        glasses: result.items.glasses
+                    }  
+                }}, function (err, result) {
+                    socket.emit('response buy missile', { pocket: pocketUpdate  ,missile:  missileUpdate});
+                   // console.log('done buying ja')
+                  
+                   
+                })
+               // console.log('pocket: ' +  result.pocket)
+                db.close();
+            })
+            
+       
+       
+        })
+    })
+
+    
+
 });
