@@ -137,10 +137,6 @@ class Lobby extends React.Component {
             this.setState({
                 joinedRoomID: ''
             });
-        }) 
-
-        socket.on('forced leave room', () => {
-            socket.emit('forced leave room');
         })
 
     }
