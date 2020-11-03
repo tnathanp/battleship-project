@@ -8,9 +8,10 @@ class Shop extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            pocket: 100,
+            pocket: 0,
             missileOwned: 0,
-            glassesOwned: 0
+            glassesOwned: 0,
+            isLoaded: false
         }
     }
 
@@ -54,15 +55,14 @@ class Shop extends React.Component {
             this.setState({
                 pocket: data.pocket,
                 missileOwned: data.missile,
-                glassesOwned: data.glasses
-
+                glassesOwned: data.glasses,
+                isLoaded: true
             })
         })
         socket.on('response buy missile', data => {
             this.setState({
                 pocket: data.pocket,
                 missileOwned: data.missile
-
             })
         })
 
@@ -70,14 +70,24 @@ class Shop extends React.Component {
             this.setState({
                 pocket: data.pocket,
                 glassesOwned: data.glasses
-
             })
         })
     }
 
     render() {
-        return (
-            <Container>
+        let result;
+        if (!this.state.isLoaded) {
+            Swal.fire({
+                title: 'Loading',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            })
+        } else {
+            Swal.close();
+            result = (
                 <Row>
                     <Col>
                         <Card style={{ marginBottom: '10px' }}>
@@ -121,6 +131,11 @@ class Shop extends React.Component {
 
                     </Col>
                 </Row>
+            );
+        }
+        return (
+            <Container>
+                {result}
             </Container>
         );
     }
