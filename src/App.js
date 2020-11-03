@@ -11,6 +11,7 @@ import Ranking from './component/Ranking';
 import Login from './component/Login';
 import Game from './component/Game';
 import Shop from './component/Shop';
+import Admin from './component/Admin';
 
 class App extends React.Component {
   constructor(props) {
@@ -26,8 +27,16 @@ class App extends React.Component {
   }
 
   logged(name) {
-    Swal.fire("Hello, " + name);
-    window.location.reload(false)
+    Swal.fire({
+      title: "Hello, " + name,
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      timer: 1500
+    }).then((result) => {
+      if (result.dismiss === Swal.DismissReason.timer) {
+        window.location.reload();
+      }
+    });
   }
 
   startGame() {
@@ -53,6 +62,14 @@ class Home extends React.Component {
     return (
       <Col>
         <Switch>
+          <Route path="/admin">
+            <Menu />
+            <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
+              <Card.Body>
+                <Admin />
+              </Card.Body>
+            </Card>
+          </Route>
           <Route path="/rank">
             <Menu />
             <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
