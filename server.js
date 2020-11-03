@@ -82,7 +82,8 @@ server.on('connection', socket => {
                             missile: 0,
                             glasses: 0
                         },
-                        points: 0
+                        points: 0,
+                        pocket: 0
                     }
 
                     conn.insertOne(payload, function (err, result) {
@@ -116,7 +117,7 @@ server.on('connection', socket => {
         let sockets = server.sockets.sockets;
         console.log('Current online list');
         for (let id in sockets) {
-            if (sockets[id]['handshake']['query']['auth'] != null)
+            if (sockets[id]['handshake']['query']['auth'] != null && sockets[id]['handshake']['query']['auth'] != 'null')
                 console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
         }
         console.log('\n');
@@ -266,11 +267,18 @@ server.on('connection', socket => {
                 console.log('player exceed')
             }
         } else {
-            console.log('erro rom not exist');
+            console.log('error room not exists');
         }
     })
 
-    socket.on('send msg to same room', data => {
+    socket.on('admin authorization', auth => {
+        if (auth === '710789ee-5918-4e44-a946-33ddacaab753')
+            socket.emit('admin authorized');
+        else
+            socket.emit('restricted access')
+    })
+
+    socket.on('admin request online list', data => {
         socket.broadcast.to(data.roomID).emit('msg rcv', data.msg);
     })
 
