@@ -132,6 +132,17 @@ class Lobby extends React.Component {
             })
         })
 
+        socket.on('opponent disconnect', () => {
+            socket.emit('leave room');
+            this.setState({
+                joinedRoomID: ''
+            });
+        }) 
+
+        socket.on('forced leave room', () => {
+            socket.emit('forced leave room');
+        })
+
     }
 
     render() {
@@ -184,7 +195,7 @@ class Lobby extends React.Component {
                             </Card.Header>
                             <Card.Body class="text-center">
                                 <Card.Text>
-                                    {this.state.roomList.length === 0 ? (<Card.Text style={{marginTop: '20px', marginBottom: '20px'}}>No available room</Card.Text>) : false}
+                                    {this.state.roomList.length === 0 ? (<Card.Text style={{ marginTop: '20px', marginBottom: '20px' }}>No available room</Card.Text>) : false}
                                     {this.state.roomList.map(each => (
                                         <Button block variant="light" onClick={() => this.joinRoom(each.roomID)}>{each.roomID}</Button>)
                                     )}

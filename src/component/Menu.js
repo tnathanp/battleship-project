@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import { Navbar, NavDropdown, Nav, Button, Modal, Card, Row, Col, Container } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { RiShoppingCart2Fill, RiShipLine } from 'react-icons/ri';
+import { RiShoppingCart2Fill, RiShipLine, RiAdminFill } from 'react-icons/ri';
 import { AiFillTrophy } from 'react-icons/ai';
 import { FiSettings } from 'react-icons/fi';
 import { HiHome } from 'react-icons/hi';
@@ -29,7 +29,8 @@ class Menu extends React.Component {
             redirect: {
                 lobby: false,
                 shop: false,
-                rank: false
+                rank: false,
+                admin: false
             },
             audio: [
                 new Audio('/Pirates Of The Caribbean Theme Song.mp3'),
@@ -58,7 +59,8 @@ class Menu extends React.Component {
             redirect: {
                 lobby: dest === 'lobby',
                 shop: dest === 'shop',
-                rank: dest === 'rank'
+                rank: dest === 'rank',
+                admin: dest === 'admin'
             }
         })
     }
@@ -178,6 +180,20 @@ class Menu extends React.Component {
         socket.on('success change profile', () => {
             socket.emit('request user data', localStorage.getItem('auth'));
         })
+
+        socket.on('get kicked', () => {
+            Swal.fire({
+                title: 'Get kicked',
+                text: 'You get kicked from the admin',
+                timer: 2000,
+                icon: 'warning',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            }).then(result => {
+                Swal.close();
+                this.logout();
+            })
+        })
     }
 
     render() {
@@ -238,7 +254,7 @@ class Menu extends React.Component {
                         <Button variant="light" onClick={() => this.controlSong(0)} block>Agressive</Button>
                         <Button variant="light" onClick={() => this.controlSong(1)} block>Dance</Button>
                         <Button variant="light" onClick={() => this.controlSong(2)} block>Mystery</Button>
-                        <Button variant="dark" onClick={() => this.controlSong(3)} block>Tun Off</Button>
+                        <Button variant="dark" onClick={() => this.controlSong(3)} block>Turn Off</Button>
                     </Card.Text></Card.Body></Card></Col></Row></Container>
                 </Modal.Body>
             </Modal>
@@ -283,6 +299,12 @@ class Menu extends React.Component {
                             {this.state.redirect.rank && (<Redirect to='/rank' />)}
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <AiFillTrophy style={{ marginRight: '5px' }} />Rank
+                            </div>
+                        </Nav.Link>
+                        <Nav.Link onClick={() => this.navigate('admin')}>
+                            {this.state.redirect.admin && (<Redirect to='/admin' />)}
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <RiAdminFill style={{ marginRight: '5px' }} />Admin
                             </div>
                         </Nav.Link>
                     </Nav>
