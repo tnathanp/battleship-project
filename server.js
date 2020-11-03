@@ -155,10 +155,12 @@ server.on('connection', socket => {
         }
     })
 
-    socket.on('joine invitation', room => {
+    socket.on('join invitation', room => {
         if (server.sockets.adapter.rooms[room] != null) {
+           // console.log(server.sockets.adapter.rooms[room].length)
             if (server.sockets.adapter.rooms[room].length === 1) {
                 socket.join(room);
+               // console.log(server.sockets.adapter.rooms[room].length)
                 socket.to(room).broadcast.emit('join invitation success')
             } else {
                 socket.to(room).broadcast.emit('join invitation fail')
