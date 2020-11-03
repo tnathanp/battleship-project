@@ -358,6 +358,7 @@ server.on('connection', socket => {
                 db.close();
             })
         })
+        server.emit('update admin console');
     })
 
     socket.on('buy missile', data => {
@@ -394,6 +395,7 @@ server.on('connection', socket => {
                 db.close();
             })
         })
+        server.emit('update admin console');
     })
 
     socket.on('admin authorization', auth => {
