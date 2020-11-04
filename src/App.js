@@ -43,6 +43,21 @@ class App extends React.Component {
     this.setState({ isInGame: true });
   }
 
+  componentDidMount() {
+
+    socket.on('start the game', () => {
+      Swal.close();
+      Swal.fire({
+        title: 'Game start gooooooooooo',
+        icon: 'success'
+      })
+    })
+
+    socket.on('opponent disconnect', () => {
+      socket.emit('leave room');
+    })
+  }
+
   render() {
     return (
       <Router>

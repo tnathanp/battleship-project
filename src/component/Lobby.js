@@ -13,7 +13,6 @@ class Lobby extends React.Component {
             roomList: [],
             friendID: '',
             roomID: '',
-            joinedRoomID: '',
             showInviteFriend: false,
             showCreateRoom: false
         }
@@ -49,26 +48,35 @@ class Lobby extends React.Component {
 
     joinRoom(id) {
         socket.emit('join room', id);
-        this.setState({
-            joinedRoomID: id
-        })
     }
 
     invite() {
-        socket.emit('request friend id', this.state.friendID);
+        this.modalControl('if', false);
+        let req = {
+            id: this.state.friendID,
+            myAuth: localStorage.getItem('auth')
+        }
+        socket.emit('invite friend', req);
     }
 
     refresh() {
         socket.emit('get room list');
     }
 
+    handleKey(e, t) {
+        if (e.key === 'Enter') {
+            if (t === 'if') {
+                this.invite();
+            } else if (t === 'cr') {
+                this.createRoom();
+            }
+        }
+    }
+
     componentDidMount() {
         socket.emit('get room list');
 
         socket.on('success create room', id => {
-            this.setState({
-                joinedRoomID: id
-            })
             Swal.fire({
                 title: 'Waiting for the opponent',
                 allowOutsideClick: false,
@@ -80,26 +88,24 @@ class Lobby extends React.Component {
         })
 
         socket.on('receive invitation', room => {
-            this.setState({
-                joinedRoomID: room
-            });
             Swal.fire({
-                text: 'You are invited to join a room'
-            });
-            socket.emit('join invitation', room);
-        })
-
-        socket.on('join invitation success', () => {
-            Swal.fire({
-                icon: 'success',
-                text: "Join success"
+                text: 'You are invited to join a room',
+                showDenyButton: true,
+                confirmButtonText: 'Accept',
+                denyButtonText: 'Decline'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    socket.emit('join invitation', room);
+                } else {
+                    socket.emit('reject invitation', room);
+                }
             })
         })
 
         socket.on('join invitation fail', () => {
             Swal.fire({
                 icon: 'error',
-                text: "Join fail"
+                text: "Rejected"
             })
         })
 
@@ -107,7 +113,15 @@ class Lobby extends React.Component {
             Swal.fire({
                 icon: 'error',
                 title: 'Oops',
-                text: "friend's ID not found"
+                text: "Friend's ID not found"
+            })
+        })
+
+        socket.on('friend already in a room', () => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops',
+                text: "Your friend is currently in a room"
             })
         })
 
@@ -124,21 +138,6 @@ class Lobby extends React.Component {
             })
         })
 
-        socket.on('start the game', () => {
-            Swal.close();
-            Swal.fire({
-                title: 'Game start gooooooooooo',
-                icon: 'success'
-            })
-        })
-
-        socket.on('opponent disconnect', () => {
-            socket.emit('leave room');
-            this.setState({
-                joinedRoomID: ''
-            });
-        })
-
     }
 
     render() {
@@ -150,7 +149,7 @@ class Lobby extends React.Component {
                         <Form>
                             <Form.Group>
                                 <Form.Label>Friend ID</Form.Label>
-                                <Form.Control onChange={e => this.handleFriendID(e)} placeholder="Enter your friend's ID" />
+                                <Form.Control onChange={e => this.handleFriendID(e)} onKeyPress={e => this.handleKey(e, 'if')} placeholder="Enter your friend's ID" />
                             </Form.Group>
                         </Form>
                     </Card.Text></Card.Body></Card.Header></Card></Col></Row></Container>
@@ -169,7 +168,7 @@ class Lobby extends React.Component {
                     <Container><Row><Col><Card><Card.Header><Card.Body><Card.Text>
                         <Form>
                             Room name
-                        <Form.Control onChange={e => this.handleRoomID(e)} placeholder="Enter room name" />
+                        <Form.Control onChange={e => this.handleRoomID(e)} onKeyPress={e => this.handleKey(e, 'cr')} placeholder="Enter room name" />
                         </Form>
                     </Card.Text></Card.Body></Card.Header></Card></Col></Row></Container>
                 </Modal.Body>
