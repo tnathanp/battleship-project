@@ -1,10 +1,9 @@
 import React from 'react';
 import socket from '../connection';
-import { Row, Col, Card, Container, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Row, Col, Card, Container, ListGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { IconContext } from 'react-icons';
 import { RiVipCrownFill } from 'react-icons/ri';
-import { FaUserAlt } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
 class Ranking extends React.Component {
@@ -26,7 +25,6 @@ class Ranking extends React.Component {
       })
     })
   }
-
 
   render() {
     let result;
