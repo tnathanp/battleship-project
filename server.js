@@ -3,7 +3,6 @@ let http = require('http').createServer(app);
 let server = require('socket.io')(http);
 let uuid = require('uuid');
 
-
 const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb+srv://battleshipproject:WXfFWQBKEIj1xIeM@cluster.83va3.mongodb.net/battleship-project?retryWrites=true&w=majority";
 
@@ -20,8 +19,6 @@ http.listen(process.env.PORT || 7000, '0.0.0.0', () => {
     console.log('Listening');
 });
 
-//---------------------------------------------------------------------
-
 app.get('/requestPic', (req, res) => {
     let auth = req.query.auth;
     MongoClient.connect(uri, function (err, db) {
@@ -35,25 +32,89 @@ app.get('/requestPic', (req, res) => {
         })
     })
 })
+//--------------------------------------------------------------------------------
 
 let roomList = [];
 
 server.on('connection', socket => {
 
-    //Showing connection
-    let auth = socket.handshake.query.auth;
-    if (auth != null && auth != 'null') {
-        let sockets = server.sockets.sockets;
+    //-Helper function------------------------------------------------------------
+
+    function getOnlineList() {
         console.log('Current online list');
+        let sockets = server.sockets.sockets;
         for (let id in sockets) {
-            if (sockets[id]['handshake']['query']['auth'] != null)
-                console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
+            let qAuth = sockets[id]['handshake']['query']['auth'];
+            if (qAuth != null && qAuth != 'null') console.log(qAuth + ' on ' + id);
         }
         console.log('\n');
         server.emit('update admin console');
     }
 
-    //User validation
+    function getRoom(id) {
+        let result = '';
+        let rooms = server.sockets.adapter.rooms;
+        for (let roomName in rooms) {
+            let socketList = Object.keys(rooms[roomName]['sockets']);
+            if (socketList[0] === roomName) {
+                continue;
+            } else if (socketList.includes(id)) {
+                result += roomName;
+                break;
+            }
+        }
+        return result
+    }
+
+    function getId(auth) {
+        let result = '';
+        let sockets = server.sockets.sockets;
+        for (let id in sockets) {
+            let qAuth = sockets[id]['handshake']['query']['auth'];
+            if (qAuth != null && qAuth != 'null') {
+                if (qAuth === auth) {
+                    result += id;
+                    break;
+                }
+            }
+        }
+        return result
+    }
+
+    function isInRoom(id, room) {
+        return getRoom(id) === room ? true : false
+    }
+
+    function isInAnyRoom(id) {
+        return getRoom(id) === '' ? false : true
+    }
+
+    //--Connection handling-------------------------------------------------------
+
+    getOnlineList();
+
+    socket.on('offline', auth => {
+        socket.disconnect();
+    })
+
+    socket.on('disconnecting', () => {
+        let curRoom = getRoom(socket.id);
+        if (curRoom !== '') {
+            roomList = roomList.filter(each => {
+                if (each.roomID !== curRoom) return true
+            })
+            socket.broadcast.to(curRoom).emit('opponent disconnect');
+            socket.leave(curRoom);
+        }
+    })
+
+    socket.on('disconnect', () => {
+        getOnlineList();
+        server.emit('update room list', roomList);
+    })
+
+    //--User management-----------------------------------------------------------
+
     socket.on('login', form => {
         MongoClient.connect(uri, function (err, db) {
             if (err) throw err;
@@ -95,7 +156,6 @@ server.on('connection', socket => {
                 db.close();
             })
         })
-        server.emit('update admin console');
     });
 
     socket.on('change profile', data => {
@@ -111,49 +171,119 @@ server.on('connection', socket => {
         server.emit('update admin console');
     })
 
-    //Connection close
-    socket.on('offline', auth => {
-        socket.disconnect();
+    socket.on('request user data', auth => {
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+
+            conn.findOne({ auth: auth }, function (err, result) {
+                if (err) throw err;
+                let data = {
+                    user: result.user,
+                    profile: result.profile,
+                    items: {
+                        missile: result.items.missile,
+                        glasses: result.items.glasses
+                    }
+                }
+                socket.emit('response user data', data);
+                db.close();
+            })
+        })
     })
 
-    socket.on('disconnect', () => {
-        let sockets = server.sockets.sockets;
-        console.log('Current online list');
-        for (let id in sockets) {
-            if (sockets[id]['handshake']['query']['auth'] != null && sockets[id]['handshake']['query']['auth'] != 'null')
-                console.log(sockets[id]['handshake']['query']['auth'] + ' on ' + id);
-        }
-        console.log('\n');
-        server.emit('update room list', roomList);
+    socket.on('request rank data', auth => {
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+
+            let data = [];
+            conn.find({}).sort({ points: -1 }).toArray(function (err, result) {
+                for (let i = 0; i < result.length; i++) {
+                    if (result[i].auth === auth) {
+                        data.push({
+                            rank: i + 1,
+                            name: result[i].user,
+                            points: result[i].points,
+                            isMe: true
+                        })
+                    } else {
+                        data.push({
+                            rank: i + 1,
+                            name: result[i].user,
+                            points: result[i].points,
+                            isMe: false
+                        })
+                    }
+                }
+                socket.emit('response rank data', data);
+                db.close();
+            })
+        })
+    })
+
+    socket.on('get pocket', () => {
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+            let sockets = server.sockets.sockets;
+
+            conn.findOne({ auth: sockets[socket.id]['handshake']['query']['auth'] }, function (err, result) {
+                if (err) throw err;
+                socket.emit('response pocket', {
+                    pocket: result.pocket,
+                    missile: result.items.missile,
+                    glasses: result.items.glasses
+                });
+                db.close();
+            })
+        })
+    })
+
+    //--Room management-----------------------------------------------------------
+
+    socket.on('invite friend', req => {
+        MongoClient.connect(uri, function (err, db) {
+            if (err) throw err;
+            let conn = db.db("battleship-project").collection("user");
+
+            conn.findOne({ user: req.id }, function (err, result) {
+                if (err) throw err;
+
+                if (result == null) {
+                    socket.emit('friend id not found');
+                } else if (result.auth === req.myAuth) {
+                    socket.emit('join invitation fail');
+                } else {
+                    let friendSocketID = getId(result.auth);
+
+                    if (isInAnyRoom(friendSocketID)) {
+                        socket.emit('friend already in a room');
+                    } else {
+                        let roomName = String(socket.id + friendSocketID);
+                        socket.join(roomName);
+                        server.emit('update admin console');
+                        server.to(friendSocketID).emit('receive invitation', roomName);
+                    }
+                }
+                db.close();
+            })
+        })
+    })
+
+    socket.on('join invitation', room => {
+        socket.join(room);
+        server.to(room).emit('start the game');
         server.emit('update admin console');
     })
 
-    socket.on('disconnecting', () => {
-        let roomConnection = server.sockets.adapter.rooms
-        for (let key in roomConnection) {
-            if (roomConnection[key].length === 2) {
-                if (socket.id === Object.keys(roomConnection[key]['sockets'])[0] ||
-                    socket.id === Object.keys(roomConnection[key]['sockets'])[1]) {
-                    roomList = roomList.filter(each => {
-                        if (each.roomID === key) {
-                            return false;
-                        }
-                        return true;
-                    })
-                    socket.broadcast.to(key).emit('opponent disconnect');
-                }
-            } else {
-                if (socket.id === Object.keys(roomConnection[key]['sockets'])[0]) {
-                    roomList = roomList.filter(each => {
-                        if (each.roomID === key) {
-                            return false;
-                        }
-                        return true;
-                    })
-                }
-            }
-        }
-        socket.leaveAll();
+    socket.on('reject invitation', room => {
+        socket.broadcast.to(room).emit('join invitation fail');
+        server.of('/').in(room).clients((error, socketIds) => {
+            if (error) throw error;
+            socketIds.forEach(socketId => server.sockets.sockets[socketId].leave(room));
+        });
+        server.emit('update admin console');
     })
 
     socket.on('leave room', () => {
@@ -161,82 +291,11 @@ server.on('connection', socket => {
         server.emit('update admin console');
     })
 
-    socket.on('request user data', auth => {
-        if (auth != null) {
-            MongoClient.connect(uri, function (err, db) {
-                if (err) throw err;
-                let conn = db.db("battleship-project").collection("user");
-
-                conn.findOne({ auth: auth }, function (err, result) {
-                    if (err) throw err;
-                    let data = {
-                        user: result.user,
-                        profile: result.profile,
-                        items: {
-                            missile: result.items.missile,
-                            glasses: result.items.glasses
-                        }
-                    }
-                    socket.emit('response user data', data);
-                    db.close();
-                })
-            })
-        }
-    })
-
-    socket.on('join invitation', room => {
-        if (server.sockets.adapter.rooms[room] != null) {
-            if (server.sockets.adapter.rooms[room].length === 1) {
-                socket.join(room);
-                socket.to(room).broadcast.emit('join invitation success')
-            } else {
-                socket.to(room).broadcast.emit('join invitation fail')
-            }
-        }
-        server.emit('update admin console');
-    })
-
-    socket.on('request friend id', friendID => {
-        let findFriendID = ''
-
-        if (friendID != null) {
-            MongoClient.connect(uri, function (err, db) {
-                if (err) throw err;
-                let conn = db.db("battleship-project").collection("user");
-
-                conn.findOne({ user: friendID }, function (err, result) {
-                    if (err) throw err;
-
-                    if (result == null) {
-                        socket.emit('friend id not found');
-                    } else {
-                        //console.log('find result' + ' ' + result.auth);
-                        let sockets = server.sockets.sockets;
-                        for (let id in sockets) {
-                            //console.log(id + ' ' + result.auth);
-                            if (sockets[id]['handshake']['query']['auth'] != null) {
-                                if (sockets[id]['handshake']['query']['auth'] === result.auth) {
-                                    findFriendID = id;
-                                    break;
-                                }
-                            }
-                        }
-
-                        //console.log('find friend id leaw ja ' + findFriendID);
-                        let roomname = String(socket.id + findFriendID)
-                        socket.join(roomname)
-
-                        //console.log('room name sent ' + roomname);
-                        server.to(findFriendID).emit('receive invitation', roomname)
-                    }
-                    db.close();
-                })
-            })
-        }
+    socket.on('get room list', () => {
+        socket.emit('update room list', roomList);
     })
 
     socket.on('create room', id => {
-
         if (roomList.length === 0) {
             let data = {
                 socketID: socket.id,
@@ -246,7 +305,6 @@ server.on('connection', socket => {
             socket.join(id);
             socket.emit('success create room', id);
             server.emit('update room list', roomList);
-
         } else {
             for (let each of roomList) {
                 if (each['roomID'] === id) {
@@ -265,20 +323,15 @@ server.on('connection', socket => {
                 }
             }
         }
-        console.log('\n current room list');
+        console.log('\n Current room list');
         console.log(roomList);
         server.emit('update admin console');
-    })
-
-    socket.on('get room list', () => {
-        socket.emit('update room list', roomList);
     })
 
     socket.on('join room', id => {
         if (server.sockets.adapter.rooms[id] != null) {
             if (server.sockets.adapter.rooms[id].length === 1) {
                 socket.join(id);
-                //remove the room from room list as i can support only 2 people
                 for (let i = 0; i <= roomList.length; i++) {
                     if (roomList[i]['roomID'] === id) {
                         roomList.splice(i, 1);
@@ -287,41 +340,20 @@ server.on('connection', socket => {
                     }
                 }
 
-                //test emitting to the room
+
                 server.to(id).emit('start the game');
-                console.log('\n current room list');
+                console.log('\n Current room list');
                 console.log(roomList);
             } else {
-                console.log('player exceed')
+                console.log('Player exceed')
             }
         } else {
-            console.log('error room not exists');
+            console.log('Error room not exists');
         }
         server.emit('update admin console');
     })
 
-    socket.on('get pocket', () => {
-
-        MongoClient.connect(uri, function (err, db) {
-            if (err) throw err;
-            let conn = db.db("battleship-project").collection("user");
-            let sockets = server.sockets.sockets;
-
-            conn.findOne({ auth: sockets[socket.id]['handshake']['query']['auth'] }, function (err, result) {
-                if (err) throw err;
-                socket.emit('response pocket', { pocket: result.pocket, missile: result.items.missile, glasses: result.items.glasses });
-                /*console.log('pocket & items sent')
-                console.log('result' + result)
-                console.log('pocket: ' + result.pocket)
-                console.log('missile: ' + result.items.missile)
-                console.log('glasses: ' + result.items.glasses)*/
-                db.close();
-            })
-
-        })
-
-    })
-
+    //--Shop----------------------------------------------------------------------
     socket.on('buy glasses', data => {
         MongoClient.connect(uri, function (err, db) {
             if (err) throw err;
@@ -331,14 +363,9 @@ server.on('connection', socket => {
             let glassesUpdate = 0
             conn.findOne({ auth: data.auth }, function (err, result) {
                 if (err) throw err;
-                //console.log('pocket: ' + result.pocket)
-                //console.log('glasses: ' + result.items.glasses)
 
-                pocketUpdate = Number(result.pocket) - 50 * Number(data.num)
-                glassesUpdate = Number(result.items.glasses) + Number(data.num)
-
-                //console.log('pocket: ' + pocketUpdate)
-                //console.log('glasses: ' + glassesUpdate)
+                pocketUpdate = Number(result.pocket) - 50 * Number(data.num);
+                glassesUpdate = Number(result.items.glasses) + Number(data.num);
 
                 conn.updateOne({ auth: data.auth }, {
                     $set: {
@@ -350,11 +377,7 @@ server.on('connection', socket => {
                     }
                 }, function (err, result) {
                     socket.emit('response buy glasses', { pocket: pocketUpdate, glasses: glassesUpdate });
-                    // console.log('done buying ja')
-
-
                 })
-                //console.log('pocket: ' +  result.pocket)
                 db.close();
             })
         })
@@ -370,14 +393,9 @@ server.on('connection', socket => {
             let missileUpdate = 0
             conn.findOne({ auth: data.auth }, function (err, result) {
                 if (err) throw err;
-                console.log('pocket: ' + result.pocket)
-                console.log('missile: ' + result.items.missile)
 
-                pocketUpdate = Number(result.pocket) - 100 * Number(data.num)
-                missileUpdate = Number(result.items.missile) + Number(data.num)
-
-                //  console.log('pocket: ' + pocketUpdate)
-                //  console.log('missile: ' + missileUpdate)
+                pocketUpdate = Number(result.pocket) - 100 * Number(data.num);
+                missileUpdate = Number(result.items.missile) + Number(data.num);
 
                 conn.updateOne({ auth: data.auth }, {
                     $set: {
@@ -389,22 +407,21 @@ server.on('connection', socket => {
                     }
                 }, function (err, result) {
                     socket.emit('response buy missile', { pocket: pocketUpdate, missile: missileUpdate });
-                    // console.log('done buying ja')
                 })
-                // console.log('pocket: ' +  result.pocket)
                 db.close();
             })
         })
         server.emit('update admin console');
     })
 
+    //--Admin tools-----------------------------------------------------------
     socket.on('admin authorization', auth => {
         if (auth === '72b66123-98b4-4d92-9719-2aca10a98713') {
             let sockets = server.sockets.sockets;
             let online = [];
             let onlineWithData = {};
 
-            //get auth online list for database
+            //get auth online list for database request
             //get auth online list with corespond socket id for room identification
             for (let id in sockets) {
                 if (sockets[id]['handshake']['query']['auth'] != null && sockets[id]['handshake']['query']['auth'] != 'null') {
@@ -413,30 +430,7 @@ server.on('connection', socket => {
                     });
                     onlineWithData[sockets[id]['handshake']['query']['auth']] = {
                         socketID: id,
-                        joinedRoom: ''
-                    }
-                }
-            }
-
-            //identify the corespond room name of each online member
-            let roomConnection = server.sockets.adapter.rooms
-            for (let each in onlineWithData) {
-                for (let key in roomConnection) {
-                    if (roomConnection[key].length === 1) {
-                        if (Object.keys(roomConnection[key]['sockets'])[0] === key)
-                            continue;
-                        else if (Object.keys(roomConnection[key]['sockets'])[0] === onlineWithData[each]['socketID']) {
-                            onlineWithData[each]['joinedRoom'] = key;
-                            continue;
-                        }
-                    } else if (roomConnection[key].length === 2) {
-                        if (onlineWithData[each]['socketID'] === Object.keys(roomConnection[key]['sockets'])[0]) {
-                            onlineWithData[each]['joinedRoom'] = key;
-                            continue;
-                        } else if (onlineWithData[each]['socketID'] === Object.keys(roomConnection[key]['sockets'])[1]) {
-                            onlineWithData[each]['joinedRoom'] = key;
-                            continue;
-                        }
+                        joinedRoom: getRoom(id)
                     }
                 }
             }
@@ -461,7 +455,6 @@ server.on('connection', socket => {
         }
     })
 
-    //admin tools
     socket.on('add money', auth => {
         MongoClient.connect(uri, function (err, db) {
             if (err) throw err;
@@ -471,19 +464,11 @@ server.on('connection', socket => {
                 server.emit('update admin console');
                 db.close();
             })
-
         })
     })
 
     socket.on('kick', auth => {
-        let sockets = server.sockets.sockets;
-        for (let id in sockets) {
-            if (sockets[id]['handshake']['query']['auth'] != null)
-                if (sockets[id]['handshake']['query']['auth'] == auth) {
-                    server.to(id).emit('get kicked');
-                    break;
-                }
-        }
+        server.to(getId(auth)).emit('get kicked');
     })
 
     socket.on('reset points', auth => {
@@ -495,7 +480,6 @@ server.on('connection', socket => {
                 server.emit('update admin console');
                 db.close();
             })
-
         })
     })
 
@@ -507,11 +491,9 @@ server.on('connection', socket => {
             });
 
             roomList = roomList.filter(each => {
-                if (each.roomID === room) {
-                    return false;
-                }
-                return true;
+                if (each.roomID !== room) return true
             })
+
             server.emit('update room list', roomList);
             server.emit('update admin console');
         }
