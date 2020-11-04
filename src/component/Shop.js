@@ -24,12 +24,8 @@ class Shop extends React.Component {
             })
             return
         } else {
-
-
             socket.emit('buy missile', { auth: localStorage.getItem('auth'), num: n })
         }
-
-
     }
 
     glassesBuy(n) {
@@ -41,12 +37,8 @@ class Shop extends React.Component {
             })
             return
         } else {
-
             socket.emit('buy glasses', { auth: localStorage.getItem('auth'), num: n })
-
         }
-
-
     }
 
     componentDidMount() {

@@ -1,6 +1,6 @@
 import React from 'react';
 import socket from '../connection';
-import { Row, Col, Container, Card, Navbar, Nav, Button, InputGroup, FormControl } from 'react-bootstrap';
+import { Row, Col, Container, Card, Navbar, Nav, Button, InputGroup, FormControl, ListGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from 'sweetalert2';
 import { BsFillPauseFill } from 'react-icons/bs'
@@ -14,6 +14,7 @@ class Game extends React.Component {
         super(props);
         this.state = {
             data: [],
+            chat: [],
             seconds: 10
         }
     }
@@ -32,18 +33,21 @@ class Game extends React.Component {
 
     tick() {
         this.setState(state => ({
-          seconds: state.seconds - 1
+            seconds: state.seconds - 1
         }));
 
-        if(this.state.seconds === 0){
+        //add message to chatbox
+        this.state.chat.push(this.state.seconds);
+        let chatbox = document.getElementById("chat-box");
+        chatbox.scrollTop = chatbox.offsetHeight;
+
+        if (this.state.seconds === 0) {
             clearInterval(this.interval)
             Swal.fire({
                 text: 'Time out',
-                
-                
             })
         }
-      }
+    }
 
     render() {
         return (
@@ -56,61 +60,66 @@ class Game extends React.Component {
                                     <Nav.Link >
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
                                             <BsFillPauseFill style={{ marginRight: '5px' }} /> Pause
-                                    </div>
+                                        </div>
                                     </Nav.Link>
-
                                 </Nav>
                             </Navbar.Collapse>
                         </Navbar>
                         <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
                             <Card.Body>
                                 <Row>
-                                    <Col>
-                                       
-                                        {this.renderBoard().map(each => (<div className="board-row">{each}</div>))} 
-                                    </Col>
-                                    <Col>
+                                    <Col xs={4} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
                                         {this.renderBoard().map(each => (<div className="board-row">{each}</div>))}
                                     </Col>
-                                    <Col>
-                                        <Card style={{ width: '19rem',height: '268px' }}>
-                                            <Card.Body>
-                                                <Card.Title>Items</Card.Title>
-                                                <Card.Subtitle className="mb-2 text-muted">Use them wisely na ka sis</Card.Subtitle>
-                                                <Card.Text>
-
-                                                </Card.Text>
-                                                <Button><IoIosRocket style={{ marginRight: '5px' }} />Five-shot Missile</Button>
-                                                <Button><BiGlasses style={{ marginRight: '5px' }} />Glasses</Button>
-                                               
+                                    <Col xs={4} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+                                        {this.renderBoard().map(each => (<div className="board-row">{each}</div>))}
+                                    </Col>
+                                    <Col xs={4}>
+                                        <Card border="primary" style={{ width: '100%', height: '350px'}}>
+                                            <Card.Header>Chat</Card.Header>
+                                            <Card.Body id="chat-box" style={{ height: '150px', overflowY: 'scroll' }}>
+                                                {this.state.chat.map(each => (
+                                                    <p>{each}</p>
+                                                ))}
                                             </Card.Body>
+                                            <Card.Footer>
+                                                <InputGroup size="sm">
+                                                    <FormControl aria-describedby="basic-addon1" style={{ marginTop: '5px' }} />
+                                                    <InputGroup.Append>
+                                                        <Button variant="outline-secondary" size="sm">Send</Button>
+                                                    </InputGroup.Append>
+                                                </InputGroup>
+                                            </Card.Footer>
                                         </Card>
                                     </Col>
                                 </Row>
                                 <Row>
-
-                                    <Col>
-                                        <Card border="primary" style={{width: '40rem', marginTop:'10px',height: '160px'}}>
-                                            <Card.Header>Chat</Card.Header>
+                                    <Col xs={8}>
+                                        <Card style={{ width: '100%', marginTop: '10px', height: '100%' }}>
                                             <Card.Body>
-                                                แชทๆๆๆๆ
-                                                <InputGroup className="mb-3">
-                                                    <FormControl aria-describedby="basic-addon1" style={{marginTop: '5px'}}/>
-                                                    <InputGroup.Append>
-                                                        <Button variant="outline-secondary">Send</Button>
-                                                    </InputGroup.Append>
-                                                </InputGroup>
+                                                <Row>
+                                                    <Col>
+                                                        <Card.Title>Items</Card.Title>
+                                                        <Card.Subtitle className="mb-2 text-muted">Missile quota: one per game</Card.Subtitle>
+                                                        <Card.Subtitle className="mb-2 text-muted">Glasses quota: twice per game</Card.Subtitle>
+                                                        <Card.Subtitle className="mb-2 text-muted"><br></br>Use them wisely</Card.Subtitle>
+                                                    </Col>
+                                                    <Col style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+                                                        <Button variant='info' block><IoIosRocket style={{ marginRight: '5px' }} />Five-shot Missile</Button>
+                                                        <Button variant='info' block><BiGlasses style={{ marginRight: '5px' }} />Glasses</Button>
+                                                        <Button variant='danger' disabled='true' block>Cancel</Button>
+                                                    </Col>
+                                                </Row>
                                             </Card.Body>
                                         </Card>
                                     </Col>
-                                    <Col className= "text-center">
-                                        <Card   style={{ width: '19rem',marginTop: '10px',marginLeft: '60px',height: '160px' }}>
+                                    <Col xs={4} className="text-center">
+                                        <Card style={{ width: '100%', marginTop: '10px', height: '100%' }}>
                                             <Card.Body>
                                                 <Card.Title>Time remaining</Card.Title>
-                                                <Card.Text style= {{ fontSize: '70px'}}>
-                                                  {this.state.seconds}
-                                            </Card.Text>
-                                                
+                                                <Card.Text style={{ marginBottom: '-20px', fontSize: '70px' }}>
+                                                    {this.state.seconds}
+                                                </Card.Text>
                                             </Card.Body>
                                         </Card>
                                     </Col>
@@ -124,37 +133,7 @@ class Game extends React.Component {
     }
 
     componentDidMount() {
-
         this.interval = setInterval(() => this.tick(), 1000);
-        /*
-        let timerInterval
-        Swal.fire({
-            title: 'Time remaining',
-            html: '<a></a>',
-            timer: 10000,
-            timerProgressBar: true,
-            backdrop: false,
-            willOpen: () => {
-                Swal.showLoading()
-                timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const t = content.querySelector('a')
-                        if (t) {
-                            t.textContent = Math.ceil(Swal.getTimerLeft() / 1000)
-                        }
-                    }
-                }, 100)
-            },
-            willClose: () => {
-                clearInterval(timerInterval)
-            }
-        }).then((result) => {
-            /* Read more about handling dismissals below 
-            if (result.dismiss === Swal.DismissReason.timer) {
-                console.log('I was closed by the timer')
-            }
-        })*/
     }
 }
 
