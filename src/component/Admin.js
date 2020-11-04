@@ -1,7 +1,7 @@
 import React from 'react';
 import socket from '../connection';
 import Swal from 'sweetalert2';
-import { Row, Col, Card, Button, Container, Image, Table, InputGroup, FormControl } from 'react-bootstrap';
+import { Row, Col, Card, Button, Container, Image, Table } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Admin extends React.Component {
@@ -38,7 +38,6 @@ class Admin extends React.Component {
         })
 
         socket.on('admin authorized', data => {
-            Swal.close();
             this.setState({
                 admin: 1,
                 data: data
@@ -46,7 +45,6 @@ class Admin extends React.Component {
         })
 
         socket.on('restricted access', () => {
-            Swal.close();
             this.setState({ admin: 2 });
         })
 
@@ -64,13 +62,14 @@ class Admin extends React.Component {
                 }
             })
         } else if (this.state.admin === 1) {
+            Swal.close();
             result = (
                 <Row>
                     <Col>
                         <Card className="text-center">
                             <Card.Body>
                                 <Button variant='light' block onClick={() => this.controlRoomID()}>Show/Hide Room ID</Button>
-                                <Table responsive striped bordered hover>
+                                <Table responsive bordered hover>
                                     <thead>
                                         <tr>
                                             <th>Profile</th>
@@ -117,6 +116,7 @@ class Admin extends React.Component {
                 </Row>
             );
         } else {
+            Swal.close();
             result = (
                 <Container style={{ marginTop: '50px', marginBottom: '50px' }}>
                     <Row className="text-center">
