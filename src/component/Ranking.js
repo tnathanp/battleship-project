@@ -1,36 +1,100 @@
 import React from 'react';
 import socket from '../connection';
-import { Row, Col, Card } from 'react-bootstrap';
+import { Row, Col, Card, Container, ListGroup, ListGroupItem } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { IconContext } from 'react-icons';
 import { RiVipCrownFill } from 'react-icons/ri';
+import Swal from 'sweetalert2';
 
 class Ranking extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: [],
+      isLoaded: false
+    }
+  }
+
+  componentDidMount() {
+    socket.emit('request rank data',localStorage.getItem('auth'));
+
+    socket.on('response rank data', data => {
+      Swal.close();
+      this.setState({
+        data: data,
+        isLoaded: true
+      })
+    } )
+  }
+
+
   render() {
+    let result;
+    if (this.state.isLoaded === false) {
+      Swal.fire({
+        title: 'Loading',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading()
+        }
+    })
+    } else {
+      let rank = 0;
+      for(let i = 0; i < this.state.data.length; i++) {
+        if(this.state.data[i].isMe === true) {
+          rank = this.state.data[i].rank
+        }
+      }
+      let a = [];
+      for(let i = 3; i < this.state.data.length; i++) {
+        a.splice(i-3, 0, this.state.data[i]);
+      }
+      result = (
+        <Row>
+          <Col>
+            <Tier tier="1" points={this.state.data[0].points} />
+            <Tier tier="2" points={this.state.data[1].points} />
+            <Tier tier="3" points={this.state.data[2].points} />
+
+            <Card className="text-center" style={{ marginTop: '10px' }}>
+              <Card.Body>
+                <Card.Title >Your rank: {rank}</Card.Title>
+              </Card.Body>
+            </Card>
+
+          </Col>
+          <Col>
+
+            <Card style={{ height: '100%' }}>
+              <Card.Body>
+                <Card.Text>
+                  <ListGroup>
+                    { 
+                      a.map( (item, i) => { 
+                        return(
+                          <ListGroup.Item key={i}>
+                            <h5 class="text-uppercase text-muted mb-0 card-title">Rank: {item.rank}</h5>
+                            <h5 >{item.name}</h5>
+                            <h5 >{item.points} Points</h5> 
+                          </ListGroup.Item>
+                        )
+                      })
+                    }
+                  </ListGroup>
+                </Card.Text>
+              </Card.Body>
+            </Card>
+
+          </Col>
+        </Row>
+      );
+    }
+
     return (
-      <Row>
-        <Col>
-          <Tier tier="1" points="1000" />
-          <Tier tier="2" points="500" />
-          <Tier tier="3" points="100" />
-
-          <Card className="text-center" style={{ marginTop: '10px' }}>
-            <Card.Body>
-              <Card.Title>Your rank: 123</Card.Title>
-            </Card.Body>
-          </Card>
-
-        </Col>
-        <Col>
-
-          <Card style={{ height: '100%' }}>
-            <Card.Body>
-              <Card.Text>Name</Card.Text>
-            </Card.Body>
-          </Card>
-
-        </Col>
-      </Row>
+      <Container>
+        {result}
+      </Container>
     );
   }
 
@@ -46,6 +110,7 @@ class Tier extends React.Component {
       color: ''
     }
   }
+
 
   render() {
     return (
