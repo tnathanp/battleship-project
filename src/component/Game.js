@@ -8,6 +8,9 @@ import { IoIosRocket } from 'react-icons/io'
 import { BiGlasses } from 'react-icons/bi'
 import './Game.css';
 
+const shipSize=[1,1,1,1,2,2,2,3,3,4];
+const shipIndex=[];
+
 class Game extends React.Component {
 
     constructor(props) {
@@ -15,16 +18,79 @@ class Game extends React.Component {
         this.state = {
             data: [],
             chat: [],
-            seconds: 10
+            seconds: 10,
+            PlanningStage: true,
+            countPlaced: 0,
+            isVertical: true,
+            currentShipSize: shipSize.slice(-1).pop(),
+            shipState: false
         }
     }
 
+    showPlan() {
+        this.setState({ PlanningStage: !this.state.PlanningStage });
+    }
+
+    handleRotate(size) {
+        this.setState({
+            isVertical: !this.state.isVertical
+        });
+        this.shipShow(size);
+    }
+
+    shipShow(size){
+        let ship=[]
+        if(!this.state.isVertical){
+            for(let i=0; i<size; i++)
+            ship.push(<Col>{this.Square('','square',i,1)}</Col>);
+            return ship;
+        }
+        else{
+            for(let i=0; i<size; i++)
+            ship.push(<Row>{this.Square('','square',1,i)}</Row>);
+            return ship;
+        }
+    }
+
+    Square(value,id,column,row){
+        return (
+            <button className={id} column={column} row={row} onClick={()=>this.chooseShipIndex(column,row)}>
+                {value}
+            </button>
+        );
+    }
+
+    chooseShipIndex(column,row){
+        shipIndex.push([column,row,this.state.isVertical,this.state.currentShipSize]);
+        console.log(shipIndex);
+        this.setState({
+            shipState: true
+        })
+        this.forceUpdate();
+    }
+
     renderBoard() {
-        let board = []
+        var board = []
         for (let row = 1; row <= 8; row++) {
             let elem = []
             for (let column = 1; column <= 8; column++) {
-                elem.push((<Square value={column} />));
+                if(this.state.shipState){
+                    if(shipIndex[0][2]){
+                        if(column==shipIndex[0][0] && row<shipIndex[0][1]+this.state.currentShipSize && row>shipIndex[0][1]-1){
+                            elem.push((this.Square(column,'squarePlaced',column,row)));
+                        }else{
+                            elem.push((this.Square(column,'square',column,row)));
+                        }
+                    }else if(!shipIndex[0][2]){
+                        if(row==shipIndex[0][1] && column<shipIndex[0][0]+this.state.currentShipSize && column>shipIndex[0][0]-1){
+                            elem.push((this.Square(column,'squarePlaced',column,row)));
+                        }else{
+                            elem.push((this.Square(column,'square',column,row)));
+                        }
+                    }
+                }
+                else{elem.push((
+                this.Square(column,'square',column,row)));}
             }
             board.push(elem);
         }
@@ -50,6 +116,45 @@ class Game extends React.Component {
     }
 
     render() {
+        if (this.state.PlanningStage === true) {
+            return (
+                <Container style={{ paddingTop: '2%' }}>
+                    <Button onClick={() => this.showPlan()}>Show Plan</Button>
+                    <Row>
+                        <Col>
+                            <Navbar bg="dark" variant="dark" expand="lg" style={{ borderRadius: '10px 10px 0 0' }}>
+                                <Navbar.Collapse>
+                                    <Nav>
+                                        <Nav.Link >
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <BsFillPauseFill style={{ marginRight: '5px' }} /> Pause
+                                            </div>
+                                        </Nav.Link>
+                                    </Nav>
+                                </Navbar.Collapse>
+                            </Navbar>
+                            <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
+                                <Card.Body>
+                                        <Row>
+                                            <Col className='text-center'>
+                                            {this.renderBoard().map(each => (<div className="board-row">{each}</div>))}
+                                            </Col>
+                                            <Col><h3>Place Your Ships ㋡</h3>
+                                            <Row>
+                                                <Col className='text-center'>
+                                                {this.shipShow(this.state.currentShipSize).map(each => (<div className="ship">{each}</div>))}
+                                                </Col>
+                                            </Row>
+                                            </Col>
+                                            <Col>
+                                                <Row><Button variant='info' onClick={() => this.handleRotate(this.state.currentShipSize)}>Rotate Your Ship</Button></Row>                                            </Col>
+                                        </Row>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>)
+        } else {
         return (
             <Container style={{ paddingTop: '2%' }}>
                 <Row>
@@ -131,19 +236,10 @@ class Game extends React.Component {
             </Container>
         );
     }
+    }
 
     componentDidMount() {
         this.interval = setInterval(() => this.tick(), 1000);
-    }
-}
-
-class Square extends React.Component {
-    render() {
-        return (
-            <button className="square">
-                {this.props.value}
-            </button>
-        );
     }
 }
 

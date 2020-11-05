@@ -13,6 +13,22 @@
   width: 34px;
 }
 
+.squarePlaced {
+  background: #04868b;
+  color: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+}
+
 .square:focus {
   /*outline: none;*/
 }
@@ -22,4 +38,19 @@
   margin-right: auto;
   display: table;
   margin-bottom: -5px;
+
+}
+
+.ship{
+  margin-bottom: -5px;
+
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
