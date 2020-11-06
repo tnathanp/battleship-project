@@ -18,7 +18,8 @@ class App extends React.Component {
     super(props);
     this.logged = this.logged.bind(this);
     this.state = {
-      isInGame: false
+      isInGame: false,
+      joinedRoom: ''
     }
   }
 
@@ -45,16 +46,20 @@ class App extends React.Component {
 
   componentDidMount() {
 
-    socket.on('start the game', () => {
+    socket.on('start the game', roomName => {
       Swal.close();
-      Swal.fire({
-        title: 'Game start gooooooooooo',
-        icon: 'success'
+      this.setState({
+        isInGame: true,
+        joinedRoom: roomName
       })
     })
 
     socket.on('opponent disconnect', () => {
       socket.emit('leave room');
+      this.setState({
+        isInGame: false,
+        joinedRoom: ''
+      })
     })
   }
 
@@ -63,8 +68,7 @@ class App extends React.Component {
       <Router>
         <Container style={{ paddingTop: '2%' }}>
           <Row>
-            <Button onClick={() => this.startGame()}>Test start game</Button>
-            {this.isAuthenticated() ? this.state.isInGame ? (<Game />) : (<Home />) : (<Login logged={this.logged} />)}
+            {this.isAuthenticated() ? this.state.isInGame ? (<Game room={this.state.joinedRoom}/>) : (<Home />) : (<Login logged={this.logged} />)}
           </Row>
         </Container>
       </Router>
