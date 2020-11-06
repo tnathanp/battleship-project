@@ -319,18 +319,29 @@ class Game extends React.Component {
     }
 
     send() {
-        socket.emit('send chat', { name: this.state.name, msg: this.state.chatMsg, room: this.props.room });
-        let chatInput = document.getElementById('chat-input');
-        chatInput.value = '';
-        this.state.chat.push(this.state.name + ': ' + this.state.chatMsg);
-        let chatbox = document.getElementById("chat-box");
-        chatbox.scrollTop = chatbox.offsetHeight;
-        this.forceUpdate();
+        if (this.state.chatMsg !== '') {
+            socket.emit('send chat', { name: this.state.name, msg: this.state.chatMsg, room: this.props.room });
+            let chatInput = document.getElementById('chat-input');
+            chatInput.value = '';
+            let arr = this.state.chat.slice();
+            arr.push(this.state.name + ': ' + this.state.chatMsg);
+            this.setState({
+                chat: arr
+            }, () => {
+                let chatbox = document.getElementById("chat-box");
+                var xH = chatbox.scrollHeight;
+                chatbox.scrollTo(0, xH);
+                this.setState({
+                    chatMsg: ''
+                })
+            })
+            this.forceUpdate();
+        }
     }
 
     handleKey(e) {
         if (e.key === 'Enter') {
-            this.send();
+            if (this.state.chatMsg !== '') { this.send(); }
         }
     }
 
@@ -616,21 +627,25 @@ class Game extends React.Component {
         })
 
         socket.on('receive chat', msg => {
+            let arr = this.state.chat.slice();
+            arr.push(msg);
             this.setState({
-                chatMsg: ''
+                chat: arr
+            }, () => {
+                let chatbox = document.getElementById("chat-box");
+                var xH = chatbox.scrollHeight;
+                chatbox.scrollTo(0, xH);
             })
-            this.state.chat.push(msg);
-            let chatbox = document.getElementById("chat-box");
-            chatbox.scrollTop = chatbox.offsetHeight;
             this.forceUpdate();
         })
 
         socket.on('secret key', () => {
             this.setState({
                 secretSong: false
-            })
-            this.setState({
-                secretSong: true
+            }, () => {
+                this.setState({
+                    secretSong: true
+                })
             })
         })
 
@@ -826,7 +841,7 @@ class Game extends React.Component {
                                         </h5>
                                     </div>
                                 </Navbar.Text>
-                                <Nav.Link className="ml-auto">
+                                <Nav.Link className="ml-auto" style={{ color: 'white' }}>
                                     {this.state.name} : {this.state.score} Points<br></br>
                                     {this.state.enemyName} : {this.state.enemyScore} Points
                                 </Nav.Link>

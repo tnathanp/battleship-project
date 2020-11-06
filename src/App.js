@@ -1,6 +1,6 @@
 import React from 'react';
 import socket from './connection';
-import { Row, Col, Container, Card, Button } from 'react-bootstrap';
+import { Row, Col, Container, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
@@ -68,7 +68,7 @@ class App extends React.Component {
       <Router>
         <Container style={{ paddingTop: '2%' }}>
           <Row>
-            {this.isAuthenticated() ? this.state.isInGame ? (<Game room={this.state.joinedRoom}/>) : (<Home />) : (<Login logged={this.logged} />)}
+            {this.isAuthenticated() ? this.state.isInGame ? (<Game room={this.state.joinedRoom} />) : (<Home />) : (<Login logged={this.logged} />)}
           </Row>
         </Container>
       </Router>

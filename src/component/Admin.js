@@ -121,7 +121,7 @@ class Admin extends React.Component {
                 <Container style={{ marginTop: '50px', marginBottom: '50px' }}>
                     <Row className="text-center">
                         <Col>
-                            <Image style={{ width: '20%', marginBottom: '10px' }} src="https://icons.iconarchive.com/icons/paomedia/small-n-flat/256/sign-error-icon.png" />
+                            <Image style={{ width: '20%', marginBottom: '10px' }} src="/error.png" />
                             <h2>Restricted access</h2>
                         </Col>
                     </Row>
