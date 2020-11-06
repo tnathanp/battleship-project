@@ -447,14 +447,23 @@ class Game extends React.Component {
     }
 
     tick() {
-        this.setState(state => ({
-            seconds: state.seconds - 1
-        }));
+        let cur = this.state.seconds;
+        this.setState({
+            seconds: cur - 1
+        })
 
-        if (this.state.seconds <= 0) {
+        if (this.state.seconds === 0) {
             clearInterval(this.interval)
             socket.emit('timeout', this.props.room);
             this.setState({
+                isMyTurn: false
+            })
+        }
+
+        if (this.state.seconds < 0) {
+            clearInterval(this.interval)
+            this.setState({
+                seconds: 0,
                 isMyTurn: false
             })
         }
@@ -618,7 +627,10 @@ class Game extends React.Component {
 
         socket.on('secret key', () => {
             this.setState({
-                secretSong: !this.state.secretSong
+                secretSong: false
+            })
+            this.setState({
+                secretSong: true
             })
         })
 
