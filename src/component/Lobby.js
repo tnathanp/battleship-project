@@ -87,28 +87,6 @@ class Lobby extends React.Component {
             })
         })
 
-        socket.on('receive invitation', room => {
-            Swal.fire({
-                text: 'You are invited to join a room',
-                showDenyButton: true,
-                confirmButtonText: 'Accept',
-                denyButtonText: 'Decline'
-            }).then(result => {
-                if (result.isConfirmed) {
-                    socket.emit('join invitation', room);
-                } else {
-                    socket.emit('reject invitation', room);
-                }
-            })
-        })
-
-        socket.on('join invitation fail', () => {
-            Swal.fire({
-                icon: 'error',
-                text: "Rejected"
-            })
-        })
-
         socket.on('friend id not found', () => {
             Swal.fire({
                 icon: 'error',

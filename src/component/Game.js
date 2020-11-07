@@ -758,167 +758,167 @@ class Game extends React.Component {
 
     render() {
         let PlanningStage = (
-            <Row>
-                <Col>
-                    <Navbar bg="dark" variant="dark" expand="lg" style={{ borderRadius: '10px 10px 0 0' }}>
-                        <Navbar.Collapse>
-                            <Nav className="container-fluid">
-                                <Navbar.Text className="ml-auto mr-auto" style={{ color: 'white', fontSize: '18px' }}>
-                                    Place Your Ships ㋡
+            <Container style={{ paddingTop: '2%', minWidth: '600px' }}>
+                <Row>
+                    <Col>
+                        <Navbar bg="dark" variant="dark" style={{ borderRadius: '10px 10px 0 0' }}>
+                            <Navbar.Collapse>
+                                <Nav className="container-fluid">
+                                    <Navbar.Text className="ml-auto mr-auto" style={{ color: 'white', fontSize: '18px' }}>
+                                        Place Your Ships ㋡
                                 </Navbar.Text>
-                            </Nav>
-                        </Navbar.Collapse>
-                    </Navbar>
-                    <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
-                        <Card.Body>
-                            <Row>
-                                <Col xs={10} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-                                    {this.renderPlanBoard().map(each => (<div className="board-row">{each}</div>))}
-                                </Col>
-                                <Col xs={2}>
-                                    <Row style={{ width: '100%', marginBottom: '20px' }}>
-                                        <Card style={{ width: '100%' }}>
-                                            <Card.Body>
-                                                <Button variant='info' block onClick={() => this.changeAlign('hori')}>Horizontal</Button>
-                                                <Button variant='info' block onClick={() => this.changeAlign('vert')}>Vertical</Button>
-                                            </Card.Body>
-                                        </Card>
-                                    </Row>
-                                    <Row style={{ width: '100%', marginBottom: '20px' }} className="text-center">
-                                        <Card style={{ width: '100%' }}>
-                                            <Card.Header>
-                                                <Card.Text>Ship amount</Card.Text>
-                                            </Card.Header>
-                                            <Card.Body>
-                                                <Card.Text style={{ marginBottom: '-20px', marginTop: '-20px', fontSize: '50px' }}>
-                                                    {this.state.shipAmount}
-                                                </Card.Text>
-                                                <Card.Text>to be placed</Card.Text>
-                                            </Card.Body>
-                                        </Card>
-                                    </Row>
-                                    <Row style={{ width: '100%' }}>
-                                        <Card style={{ width: '100%' }}>
-                                            <Card.Body>
-                                                <Button variant='primary' block onClick={() => this.next()}>Next</Button>
-                                                <Button variant='danger' block onClick={() => this.back()} disabled={!this.state.controlButton}>Back</Button>
-                                            </Card.Body>
-                                        </Card>
-                                    </Row>
-                                </Col>
-                            </Row>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+                                </Nav>
+                            </Navbar.Collapse>
+                        </Navbar>
+                        <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
+                            <Card.Body>
+                                <Row>
+                                    <Col lg={9} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+                                        {this.renderPlanBoard().map(each => (<div className="board-row">{each}</div>))}
+                                    </Col>
+                                    <Col lg={3}>
+                                        <Row style={{ width: '100%', marginLeft: 'auto', marginRight: 'auto', marginTop: '10px', marginBottom: '10px' }}>
+                                            <Card style={{ width: '100%' }}>
+                                                <Card.Body>
+                                                    <Button variant='info' block onClick={() => this.changeAlign('hori')}>Horizontal</Button>
+                                                    <Button variant='info' block onClick={() => this.changeAlign('vert')}>Vertical</Button>
+                                                </Card.Body>
+                                            </Card>
+                                        </Row>
+                                        <Row style={{ width: '100%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '10px' }} className="text-center">
+                                            <Card style={{ width: '100%' }}>
+                                                <Card.Header>
+                                                    <Card.Text>Ship amount</Card.Text>
+                                                </Card.Header>
+                                                <Card.Body>
+                                                    <Card.Text style={{ marginBottom: '-20px', marginTop: '-20px', fontSize: '50px' }}>
+                                                        {this.state.shipAmount}
+                                                    </Card.Text>
+                                                    <Card.Text>to be placed</Card.Text>
+                                                </Card.Body>
+                                            </Card>
+                                        </Row>
+                                        <Row style={{ width: '100%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '10px' }}>
+                                            <Card style={{ width: '100%' }}>
+                                                <Card.Body>
+                                                    <Button variant='primary' block onClick={() => this.next()}>Next</Button>
+                                                    <Button variant='danger' block onClick={() => this.back()} disabled={!this.state.controlButton}>Back</Button>
+                                                </Card.Body>
+                                            </Card>
+                                        </Row>
+                                    </Col>
+                                </Row>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
         );
 
         let GamingStage = (
-            <Row>
-                <Col>
-                    <Navbar bg="dark" variant="dark" expand="lg" style={{ borderRadius: '10px 10px 0 0' }}>
-                        <Navbar.Collapse>
-                            <Nav className="container-fluid" >
-                                {!this.state.isPause ?
-                                    (<Nav.Link onClick={() => this.pause()}>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            <BsFillPauseFill style={{ marginRight: '5px' }} /> Pause
+            <Container style={{ paddingTop: '2%', minWidth: '1100px' }}>
+                {this.state.secretSong && (<iframe width="0" height="0" style={{ display: 'none' }} src="https://www.youtube.com/embed/jveH6adL5DY?controls=0&autoplay=1&loop=true" frameborder="0" allowfullscreen></iframe>)}
+                <Row >
+                    <Col>
+                        <Navbar bg="dark" variant="dark" style={{ borderRadius: '10px 10px 0 0' }}>
+                            <Navbar.Collapse>
+                                <Nav className="container-fluid">
+                                    {!this.state.isPause ?
+                                        (<Nav.Link onClick={() => this.pause()}>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <BsFillPauseFill style={{ marginRight: '5px' }} /> Pause
                                     </div>
-                                    </Nav.Link>)
-                                    :
-                                    (<Nav.Link onClick={() => this.resume()}>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            < BsFillPlayFill style={{ marginRight: '5px' }} /> Resume
+                                        </Nav.Link>)
+                                        :
+                                        (<Nav.Link onClick={() => this.resume()}>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                < BsFillPlayFill style={{ marginRight: '5px' }} /> Resume
                                     </div>
-                                    </Nav.Link>)
-                                }
-                                <Navbar.Text className="ml-auto">
-                                    <div style={{ marginTop: '3px' }} >
-                                        <h5>
-                                            <Badge style={{ width: '500px' }} variant={this.state.isPause ? 'light' : this.state.isMyTurn ? 'success' : 'danger'} >
-                                                {this.state.isPause ? (<>Paused</>) : this.state.isMyTurn ? (<>Your Turn</>) : (<>Enemy Turn</>)}
-                                            </Badge>
-                                        </h5>
-                                    </div>
-                                </Navbar.Text>
-                                <Nav.Link className="ml-auto" style={{ color: 'white' }}>
-                                    {this.state.name} : {this.state.score} Points<br></br>
-                                    {this.state.enemyName} : {this.state.enemyScore} Points
+                                        </Nav.Link>)
+                                    }
+                                    <Navbar.Text className="ml-auto">
+                                        <div style={{ marginTop: '3px' }} >
+                                            <h5>
+                                                <Badge style={{ width: '500px' }} variant={this.state.isPause ? 'light' : this.state.isMyTurn ? 'success' : 'danger'} >
+                                                    {this.state.isPause ? (<>Paused</>) : this.state.isMyTurn ? (<>Your Turn</>) : (<>Enemy Turn</>)}
+                                                </Badge>
+                                            </h5>
+                                        </div>
+                                    </Navbar.Text>
+                                    <Nav.Link className="ml-auto" style={{ color: 'white' }}>
+                                        {this.state.name} : {this.state.score} Points<br></br>
+                                        {this.state.enemyName} : {this.state.enemyScore} Points
                                 </Nav.Link>
-                            </Nav>
-                        </Navbar.Collapse>
-                    </Navbar>
-                    <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
-                        <Card.Body>
-                            <Row>
-                                <Col xs={4} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-                                    {this.renderMyBoard().map(each => (<div className="board-row">{each}</div>))}
-                                </Col>
-                                <Col xs={4} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-                                    {this.renderEnemyBoard().map(each => (<div className="board-row">{each}</div>))}
-                                </Col>
-                                <Col xs={4}>
-                                    <Card border="primary" style={{ width: '100%', height: '350px' }}>
-                                        <Card.Header>Chat</Card.Header>
-                                        <Card.Body id="chat-box" style={{ height: '150px', overflowY: 'scroll' }}>
-                                            {this.state.chat.map(each => (
-                                                <p>{each}</p>
-                                            ))}
-                                        </Card.Body>
-                                        <Card.Footer>
-                                            <InputGroup size="sm">
-                                                <FormControl id="chat-input" onChange={e => this.handleChat(e)} onKeyPress={e => this.handleKey(e)} aria-describedby="basic-addon1" style={{ marginTop: '5px' }} />
-                                                <InputGroup.Append>
-                                                    <Button variant="outline-secondary" size="sm" onClick={() => this.send()}>Send</Button>
-                                                </InputGroup.Append>
-                                            </InputGroup>
-                                        </Card.Footer>
-                                    </Card>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col xs={8}>
-                                    <Card style={{ width: '100%', marginTop: '10px', height: '100%' }}>
-                                        <Card.Body>
-                                            <Row>
-                                                <Col>
-                                                    <Card.Title>Items</Card.Title>
-                                                    <Card.Subtitle className="mb-2 text-muted">Missile quota: once per game</Card.Subtitle>
-                                                    <Card.Subtitle className="mb-2 text-muted">Glasses quota: twice per game</Card.Subtitle>
-                                                    <Card.Subtitle className="mb-2 text-muted"><br></br>Use them wisely</Card.Subtitle>
-                                                </Col>
-                                                <Col style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-                                                    <Button variant='info' block disabled={this.state.isUsingMissile || this.state.missileAvai === 0} onClick={() => this.equipMissile()}><IoIosRocket style={{ marginRight: '5px' }} />Five-shot Missile</Button>
-                                                    <Button variant='info' block disabled={this.state.isPause || !this.state.isMyTurn || this.state.isUsingMissile || this.state.radarAvai === 0} onClick={() => this.useGlasses()}><BiGlasses style={{ marginRight: '5px' }} />Glasses</Button>
-                                                    <Button variant='danger' block disabled={!this.state.isUsingMissile} onClick={() => this.cancelMissile()}>Cancel</Button>
-                                                </Col>
-                                            </Row>
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
-                                <Col xs={4} className="text-center">
-                                    <Card style={{ width: '100%', marginTop: '10px', height: '100%' }}>
-                                        <Card.Body>
-                                            <Card.Title>Time remaining</Card.Title>
-                                            <Card.Text style={{ marginBottom: '-20px', fontSize: '70px' }}>
-                                                {this.state.seconds}
-                                            </Card.Text>
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
-                            </Row>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+                                </Nav>
+                            </Navbar.Collapse>
+                        </Navbar>
+                        <Card style={{ backgroundColor: '#e9ecef', borderRadius: '0 0 10px 10px' }}>
+                            <Card.Body>
+                                <Row>
+                                    <Col lg={4} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                        {this.renderMyBoard().map(each => (<div className="board-row">{each}</div>))}
+                                    </Col>
+                                    <Col lg={4} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                        {this.renderEnemyBoard().map(each => (<div className="board-row">{each}</div>))}
+                                    </Col>
+                                    <Col lg={4}>
+                                        <Card border="primary" style={{ width: '100%', height: '350px' }}>
+                                            <Card.Header>Chat</Card.Header>
+                                            <Card.Body id="chat-box" style={{ height: '150px', overflowY: 'scroll' }}>
+                                                {this.state.chat.map(each => (
+                                                    <p>{each}</p>
+                                                ))}
+                                            </Card.Body>
+                                            <Card.Footer>
+                                                <InputGroup size="sm">
+                                                    <FormControl id="chat-input" onChange={e => this.handleChat(e)} onKeyPress={e => this.handleKey(e)} aria-describedby="basic-addon1" style={{ marginTop: '5px' }} />
+                                                    <InputGroup.Append>
+                                                        <Button variant="outline-secondary" size="sm" onClick={() => this.send()}>Send</Button>
+                                                    </InputGroup.Append>
+                                                </InputGroup>
+                                            </Card.Footer>
+                                        </Card>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col lg={8}>
+                                        <Card style={{ width: '100%', marginTop: '10px', height: '100%' }}>
+                                            <Card.Body>
+                                                <Row>
+                                                    <Col>
+                                                        <Card.Title>Items</Card.Title>
+                                                        <Card.Subtitle className="mb-2 text-muted">Missile quota: once per game</Card.Subtitle>
+                                                        <Card.Subtitle className="mb-2 text-muted">Glasses quota: twice per game</Card.Subtitle>
+                                                        <Card.Subtitle className="mb-2 text-muted"><br></br>Use them wisely</Card.Subtitle>
+                                                    </Col>
+                                                    <Col style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+                                                        <Button variant='info' block disabled={this.state.isUsingMissile || this.state.missileAvai === 0} onClick={() => this.equipMissile()}><IoIosRocket style={{ marginRight: '5px' }} />Five-shot Missile</Button>
+                                                        <Button variant='info' block disabled={this.state.isPause || !this.state.isMyTurn || this.state.isUsingMissile || this.state.radarAvai === 0} onClick={() => this.useGlasses()}><BiGlasses style={{ marginRight: '5px' }} />Glasses</Button>
+                                                        <Button variant='danger' block disabled={!this.state.isUsingMissile} onClick={() => this.cancelMissile()}>Cancel</Button>
+                                                    </Col>
+                                                </Row>
+                                            </Card.Body>
+                                        </Card>
+                                    </Col>
+                                    <Col lg={4} className="text-center">
+                                        <Card style={{ width: '100%', marginTop: '10px', height: '100%' }}>
+                                            <Card.Body>
+                                                <Card.Title>Time remaining</Card.Title>
+                                                <Card.Text style={{ marginBottom: '-20px', fontSize: '70px' }}>
+                                                    {this.state.seconds}
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    </Col>
+                                </Row>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
         )
 
-        return (
-            <Container style={{ paddingTop: '2%' }}>
-                {this.state.secretSong && (<iframe width="0" height="0" style={{ display: 'none' }} src="https://www.youtube.com/embed/jveH6adL5DY?controls=0&autoplay=1&loop=true" frameborder="0" allowfullscreen></iframe>)}
-                {this.state.isPlanningStage ? PlanningStage : GamingStage}
-            </Container>
-        );
+        return this.state.isPlanningStage ? PlanningStage : GamingStage;
     }
 }
 

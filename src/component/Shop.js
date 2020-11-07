@@ -109,7 +109,7 @@ class Shop extends React.Component {
                                         <Card.Img variant="top" style={{ width: '40%' }} src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-ios7-glasses-outline-512.png" />
                                         <Card.Title style={{ marginTop: '10px' }} >Glasses</Card.Title>
                                         <Card.Text style={{ marginBottom: '20px' }}>Randomly unviel one square</Card.Text>
-                                        <Card.Text style={{ marginTop: '45px' }}>Currently owned: {this.state.glassesOwned}</Card.Text>
+                                        <Card.Text >Currently owned: {this.state.glassesOwned}</Card.Text>
                                         <Card.Text style={{ marginTop: '-15px', marginBottom: '10px' }}>Price: 50</Card.Text>
                                     </Card.Body>
                                     <Card.Footer className="text-center">

@@ -194,6 +194,7 @@ class Menu extends React.Component {
                 this.logout();
             })
         })
+
     }
 
     render() {
@@ -213,17 +214,17 @@ class Menu extends React.Component {
             <Modal centered size="sm" show="true" backdrop="static">
                 <Modal.Header><Modal.Title>Your profile</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <Row className="justify-content-md-center">
-                        <Card style={{ width: '15rem' }}>
+                    <Row className="text-center">
+                        <Card style={{ width: '15rem', marginLeft: 'auto', marginRight: 'auto' }}>
                             <Card.Img variant="top" src={this.state.user.profile} />
                             <Card.Body>
                                 <Row className="justify-content-md-center">
-                                    <Card.Title>{this.state.user.name}</Card.Title>
+                                    <Card.Title style={{ marginLeft: 'auto', marginRight: 'auto' }}>{this.state.user.name}</Card.Title>
                                 </Row>
                                 <Card>
                                     <Card.Header>
                                         <Row className="justify-content-md-center">
-                                            <Card.Title>Inventory</Card.Title>
+                                            <Card.Title style={{ marginLeft: 'auto', marginRight: 'auto' }}>Inventory</Card.Title>
                                         </Row>
                                         <Row className="justify-content-md-center">
                                             <Col>

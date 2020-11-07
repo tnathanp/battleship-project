@@ -61,12 +61,34 @@ class App extends React.Component {
         joinedRoom: ''
       })
     })
+
+    socket.on('receive invitation', room => {
+      Swal.fire({
+        text: 'You are invited to join a room',
+        showDenyButton: true,
+        confirmButtonText: 'Accept',
+        denyButtonText: 'Decline'
+      }).then(result => {
+        if (result.isConfirmed) {
+          socket.emit('join invitation', room);
+        } else {
+          socket.emit('reject invitation', room);
+        }
+      })
+    })
+
+    socket.on('join invitation fail', () => {
+      Swal.fire({
+        icon: 'error',
+        text: "Rejected"
+      })
+    })
   }
 
   render() {
     return (
       <Router>
-        <Container style={{ paddingTop: '2%' }}>
+        <Container style={{ paddingTop: '2%', }}>
           <Row>
             {this.isAuthenticated() ? this.state.isInGame ? (<Game room={this.state.joinedRoom} />) : (<Home />) : (<Login logged={this.logged} />)}
           </Row>
