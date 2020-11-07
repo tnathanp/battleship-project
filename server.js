@@ -629,6 +629,17 @@ server.on('connection', socket => {
         if (payload.msg === '#กล้ามากเก่งมาก') {
             server.to(payload.room).emit('secret key');
         }
+        if (payload.msg === 'motherlode') {
+            MongoClient.connect(uri, function (err, db) {
+                if (err) throw err;
+                let conn = db.db("battleship-project").collection("user");
+
+                conn.updateOne({ user: payload.name }, { $inc: { 'pocket': 50000 } }, function (err, result) {
+                    socket.emit('receive chat', 'Credited 50000 coins cheater!')
+                    db.close();
+                })
+            })
+        }
     })
 
     socket.on('update missile', auth => {
