@@ -477,6 +477,7 @@ class Game extends React.Component {
                 seconds: 0,
                 isMyTurn: false
             })
+            socket.emit('timeout', this.props.room);
         }
     }
 
