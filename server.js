@@ -421,57 +421,100 @@ server.on('connection', socket => {
     })
     //--Game----------------------------------------------------------------------
     socket.on('send ship data', payload => {
-        let theName = '';
-        MongoClient.connect(uri, function (err, db) {
-            if (err) throw err;
-            let conn = db.db("battleship-project").collection("user");
+        if (payload.isFirstGame) {
+            let theName = '';
+            MongoClient.connect(uri, function (err, db) {
+                if (err) throw err;
+                let conn = db.db("battleship-project").collection("user");
 
-            conn.findOne({ auth: payload.auth }, function (err, result) {
-                theName = result.user;
-                for (let each of gameData) {
-                    if (each.room === payload.room) {
-                        if (Object.keys(each).length === 1) {
-                            //first one to send data to this room
-                            each[socket.id] = {
-                                data: payload.data,
-                                name: theName,
-                                enemy: new Array(64).fill(0),
-                                missile: 1,
-                                glasses: 2,
-                                score: 0
-                            }
-                        } else {
-                            //there's another player waiting
-                            each[socket.id] = {
-                                data: payload.data,
-                                name: theName,
-                                enemy: new Array(64).fill(0),
-                                missile: 1,
-                                glasses: 2,
-                                score: 0
-                            }
-                            let opponentID = Object.keys(each).filter(key => {
-                                if (key !== socket.id && key !== 'room') return true
-                            })[0];
-                            socket.emit('name data', { you: each[socket.id].name, enemy: each[opponentID].name });
-                            socket.broadcast.to(payload.room).emit('name data', { enemy: each[socket.id].name, you: each[opponentID].name });
+                conn.findOne({ auth: payload.auth }, function (err, result) {
+                    theName = result.user;
+                    for (let each of gameData) {
+                        if (each.room === payload.room) {
+                            if (Object.keys(each).length === 1) {
+                                //first one to send data to this room
+                                each[socket.id] = {
+                                    data: payload.data,
+                                    name: theName,
+                                    enemy: new Array(64).fill(0),
+                                    missile: 1,
+                                    glasses: 2,
+                                    score: 0,
+                                    nextGameControl: {
+                                        wonLastGame: false,
+                                        placedShip: false
+                                    }
+                                }
+                            } else {
+                                //there's another player waiting
+                                each[socket.id] = {
+                                    data: payload.data,
+                                    name: theName,
+                                    enemy: new Array(64).fill(0),
+                                    missile: 1,
+                                    glasses: 2,
+                                    score: 0,
+                                    nextGameControl: {
+                                        wonLastGame: false,
+                                        placedShip: false
+                                    }
+                                }
+                                let opponentID = Object.keys(each).filter(key => {
+                                    if (key !== socket.id && key !== 'room') return true
+                                })[0];
+                                socket.emit('name data', { you: each[socket.id].name, enemy: each[opponentID].name });
+                                socket.broadcast.to(payload.room).emit('name data', { enemy: each[socket.id].name, you: each[opponentID].name });
 
-                            let firstStart = Math.round(Math.random());
-                            if (firstStart === 0) {
-                                socket.emit('run game', 'wait');
-                                socket.broadcast.to(payload.room).emit('run game', 'go');
-                            } else if (firstStart === 1) {
-                                socket.emit('run game', 'go');
-                                socket.broadcast.to(payload.room).emit('run game', 'wait');
+                                let firstStart = Math.round(Math.random());
+                                if (firstStart === 0) {
+                                    socket.emit('run game', 'wait');
+                                    socket.broadcast.to(payload.room).emit('run game', 'go');
+                                } else if (firstStart === 1) {
+                                    socket.emit('run game', 'go');
+                                    socket.broadcast.to(payload.room).emit('run game', 'wait');
+                                }
                             }
+                            break;
                         }
-                        break;
                     }
-                }
-                db.close();
+                    db.close();
+                })
             })
-        })
-        console.log(gameData);
+            console.log(gameData);
+        } else {
+            for (let each of gameData) {
+                if (each.room === payload.room) {
+                    let opponentID = Object.keys(each).filter(key => {
+                        if (key !== socket.id && key !== 'room') return true
+                    })[0];
+
+                    if (each[opponentID].nextGameControl.placedShip) {
+                        each[socket.id].data = payload.data;
+                        each[socket.id].enemy = new Array(64).fill(0);
+                        each[socket.id].missile = 1;
+                        each[socket.id].glasses = 2;
+                        each[socket.id].score = 0;
+
+                        if (each[socket.id].nextGameControl.wonLastGame) {
+                            socket.emit('run game', 'go');
+                            socket.broadcast.to(payload.room).emit('run game', 'wait');
+                        } else {
+                            socket.emit('run game', 'wait');
+                            socket.broadcast.to(payload.room).emit('run game', 'go');
+                        }
+                    } else {
+                        each[socket.id].data = payload.data;
+                        each[socket.id].enemy = new Array(64).fill(0);
+                        each[socket.id].missile = 1;
+                        each[socket.id].glasses = 2;
+                        each[socket.id].score = 0;
+                        each[socket.id].nextGameControl.placedShip = true;
+                    }
+                    break;
+                }
+            }
+        }
+
     })
 
     socket.on('timeout', room => {
@@ -554,6 +597,10 @@ server.on('connection', socket => {
                                         score: each[opponentID].score
                                     }
                                 };
+                                each[socket.id]['nextGameControl']['wonLastGame'] = true;
+                                each[socket.id]['nextGameControl']['placedShip'] = false;
+                                each[opponentID]['nextGameControl']['wonLastGame'] = false;
+                                each[opponentID]['nextGameControl']['placedShip'] = false;
                                 console.log(data);
                                 server.to(payload.room).emit('end game', data)
                                 db.close();
@@ -621,6 +668,14 @@ server.on('connection', socket => {
 
     socket.on('resume game', room => {
         socket.broadcast.to(room).emit('opponent resume');
+    })
+
+    socket.on('play again request', room => {
+        socket.broadcast.to(room).emit('opponent want to play again');
+    })
+
+    socket.on('play again accept', room => {
+        socket.broadcast.to(room).emit('opponent accept play again');
     })
 
     socket.on('send chat', payload => {
@@ -748,7 +803,10 @@ server.on('connection', socket => {
         if (room !== '') {
             server.of('/').in(room).clients((error, socketIds) => {
                 if (error) throw error;
-                socketIds.forEach(socketId => server.sockets.sockets[socketId].leave(room));
+                socketIds.forEach(socketId => {
+                    server.to(socketId).emit('reset room by admin');
+                    server.sockets.sockets[socketId].leave(room);
+                });
             });
 
             roomList = roomList.filter(each => {
