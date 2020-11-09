@@ -35,7 +35,7 @@ class Menu extends React.Component {
             audio: [
                 new Audio('/Pirates Of The Caribbean Theme Song.mp3'),
                 new Audio('/Coffin Dance (Official Music Video HD).mp3'),
-                new Audio('/Pink Panther Theme Song.mp3')
+                new Audio('/Mii Channel Music.mp3')
             ],
             user: {
                 name: '',
@@ -254,7 +254,7 @@ class Menu extends React.Component {
                     <Container><Row><Col><Card><Card.Body><Card.Text>
                         <Button variant="light" onClick={() => this.controlSong(0)} block>Agressive</Button>
                         <Button variant="light" onClick={() => this.controlSong(1)} block>Dance</Button>
-                        <Button variant="light" onClick={() => this.controlSong(2)} block>Mystery</Button>
+                        <Button variant="light" onClick={() => this.controlSong(2)} block>Chill</Button>
                         <Button variant="dark" onClick={() => this.controlSong(3)} block>Turn Off</Button>
                     </Card.Text></Card.Body></Card></Col></Row></Container>
                 </Modal.Body>

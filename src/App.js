@@ -55,6 +55,7 @@ class App extends React.Component {
     })
 
     socket.on('opponent disconnect', () => {
+      Swal.close();
       socket.emit('leave room');
       this.setState({
         isInGame: false,
@@ -82,6 +83,10 @@ class App extends React.Component {
         icon: 'error',
         text: "Rejected"
       })
+    })
+
+    socket.on('reset room by admin', () => {
+      window.location.reload()
     })
   }
 

@@ -18,6 +18,7 @@ class Game extends React.Component {
             //Shared things
             hovered: [],
             secretSong: false,
+            isFirstGame: true,
             //Data
             data: new Array(64).fill(0),
             enemyData: new Array(64).fill(0),
@@ -249,7 +250,7 @@ class Game extends React.Component {
             })
         } else {
             if (this.state.currentShipSize === 1 && this.state.shipAmount === 0) {
-                socket.emit('send ship data', { data: this.state.data, auth: localStorage.getItem('auth'), room: this.props.room });
+                socket.emit('send ship data', { data: this.state.data, auth: localStorage.getItem('auth'), isFirstGame: this.state.isFirstGame, room: this.props.room });
                 Swal.fire({
                     title: 'Waiting for the opponent',
                     allowOutsideClick: false,
@@ -479,6 +480,35 @@ class Game extends React.Component {
             })
             socket.emit('timeout', this.props.room);
         }
+    }
+
+    resetState() {
+        this.setState({
+            hovered: [],
+            secretSong: false,
+            data: new Array(64).fill(0),
+            enemyData: new Array(64).fill(0),
+            chat: [],
+            chatMsg: '',
+            seconds: 10,
+            isUsingMissile: false,
+            score: 0,
+            enemyScore: 0,
+            isMyTurn: false,
+            isPause: false,
+            missileAvai: 0,
+            radarAvai: 0,
+            isPlanningStage: true,
+            currentShipSize: 4,
+            shipAmount: 1,
+            horizontal: true,
+            vertical: false,
+            lastPlaced: [],
+            controlButton: false,
+            isFirstGame: false
+        }, () => {
+            socket.emit('request user data', localStorage.getItem('auth'));
+        })
     }
 
     componentDidMount() {
@@ -718,7 +748,9 @@ class Game extends React.Component {
                 this.state.audio[3].play();
                 Swal.fire({
                     title: 'Congratulations!',
-                    html: 'You <b>won</b> the game<br>Scored: <b>' + payload.winner.score + '</b> Points<br>Reward: <b>200</b> Coins',
+                    html: 'You <b>won</b> the game<br>Score: <b>' + payload.winner.score
+                        + '</b> Points<br>Reward: <b>200</b> Coins<br><br>Enemy <b>' + this.state.enemyName
+                        + '</b> score: ' + this.state.enemyScore,
                     imageUrl: '/win.png',
                     imageWidth: 256,
                     imageHeight: 256,
@@ -728,7 +760,27 @@ class Game extends React.Component {
                     timer: 10000
                 }).then(result => {
                     if (result.dismiss === Swal.DismissReason.timer) {
-                        window.location.reload();
+                        Swal.fire({
+                            text: 'Play again?',
+                            showDenyButton: true,
+                            allowOutsideClick: false,
+                            confirmButtonText: 'Continue',
+                            denyButtonText: 'Exit'
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                socket.emit('play again request', this.props.room);
+                                Swal.fire({
+                                    title: 'Waiting for opponent',
+                                    allowOutsideClick: false,
+                                    showConfirmButton: false,
+                                    willOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                })
+                            } else {
+                                window.location.reload();
+                            }
+                        })
                     }
                 })
             } else {
@@ -740,7 +792,9 @@ class Game extends React.Component {
                 this.state.audio[4].play();
                 Swal.fire({
                     title: 'Uhh!',
-                    html: 'You <b>lose</b> the game<br>Scored: <b>' + payload.loser.score + '</b> Points<br>Reward: <b>0</b> Coins',
+                    html: 'You <b>lose</b> the game<br>Scored: <b>' + payload.loser.score
+                        + '</b> Points<br>Reward: <b>0</b> Coins<br><br>Enemy <b>' + this.state.enemyName
+                        + '</b> score: ' + this.state.enemyScore,
                     imageUrl: '/lose.png',
                     imageWidth: 256,
                     imageHeight: 256,
@@ -750,10 +804,52 @@ class Game extends React.Component {
                     timer: 10000
                 }).then(result => {
                     if (result.dismiss === Swal.DismissReason.timer) {
-                        window.location.reload();
+                        Swal.fire({
+                            text: 'Play again?',
+                            showDenyButton: true,
+                            allowOutsideClick: false,
+                            confirmButtonText: 'Continue',
+                            denyButtonText: 'Exit'
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                socket.emit('play again request', this.props.room);
+                                Swal.fire({
+                                    title: 'Waiting for opponent',
+                                    allowOutsideClick: false,
+                                    showConfirmButton: false,
+                                    willOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                })
+                            } else {
+                                window.location.reload();
+                            }
+                        })
                     }
                 })
             }
+        })
+
+        socket.on('opponent want to play again', () => {
+            Swal.fire({
+                text: this.state.enemyName + ' want to play again',
+                showDenyButton: true,
+                allowOutsideClick: false,
+                confirmButtonText: 'Accept',
+                denyButtonText: 'Decline'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    socket.emit('play again accept', this.props.room);
+                    this.resetState();
+                } else {
+                    window.location.reload();
+                }
+            })
+        })
+
+        socket.on('opponent accept play again', () => {
+            this.resetState();
+            Swal.close();
         })
     }
 
