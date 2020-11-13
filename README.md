@@ -14,5 +14,5 @@ origin/client
 ### Command line to run 
 npm start  
   
-# When running server on locahost  
+# When running server on localhost  
 Replace https://fresh-arcade-295121.et.r.appspot.com by localhost:7000 in file src/connection.js  
